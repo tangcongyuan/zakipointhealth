@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>{% block title %} ZPH {% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="singhj">
+
+    <link rel="stylesheet" type="text/css"  href="/static/css/bootstrap-min.css">
+    <link rel="stylesheet" type="text/css"  href="/static/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css"  href="/static/css/zakipoint.css">
+    <link rel="stylesheet" type="text/css"  href="/static/css/animate.min.css">
+
+    <link rel="shortcut icon" href="static/images/favicon.ico">
+
+    {% block headopt %}
+    {% endblock %}
+
+  </head>
+
+  <body>
+
+    {% block nav %}
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/"><img src="static/images/logo-blue.png"></a>
+            <ul class="nav">
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/home">Home</a></li>
+            <li><a href="/costs">Costs</a></li>
+            <li><a href="/progs">Company Programs</a></li>
+            <li><a href="/eHlth">Employee Health</a></li>
+            <li><a href="/qCare">Quality of Care</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            {% if request.session.username %}
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-user"></span> {{request.session.username}}<span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a href="/signout"><span class="fa fa-sign-out"></span> Signout</a></li>
+                  <li><a href="#"><span class="text-muted"><span class="fa fa-user"> Profile</span></a></li>
+                </ul>
+              </li>
+            {% endif %}
+          </ul>
+        </div><!--/.navbar-collapse -->
+      </div>
+
+    </div>
+
+    {% endblock %} <!-- endblock nav -->
+
+
+    {% block 2ndnav %}
+
+    {% endblock %}  <!-- endblog 2ndnav -->
+
+
+        {% block messages %}
+        <!-- messages, hidden for growl to pick up -->
+        <div class="container">
+        <div class="row hidden">
+          <div class="col-md-10">
+
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }}">
+                    {{ message|safe }}
+                  </div>
+                {% endfor %}
+              {% else %}
+                No messages!
+              {% endif %}
+
+          </div>
+        </div>
+        </div>
+        {% endblock %}
+
+
+
+    {% block container_content %}
+      <div class="container">
+
+        {% block page_header %}
+        {% endblock %} <!-- endblock page_header -->
+
+      </div> <!-- /container -->
+    {% endblock %}  <!-- endblock container_content -->
+
+
+    {% block footer %}
+
+      <div class="footer">
+        <div class='container'>
+          <small><p class="text-muted">&copy; Zakipoint <em>Health</em> 2015  <span class="pull-right">Version 0.0000</span></p></small>
+        </div>
+      </div>
+
+    {% endblock %}  <!-- endblock footer -->
+
+    <!-- JavaScript at the bottom for fast page loading -->
+    <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/static/js/libs/jquery.min.js"><\/script>')</script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <!-- <script src="/static/js/libs/bootstrap.min.js"></script> -->
+
+    <!-- TODO - move this to an app-specific .js file, its for navbars -->
+    <script>
+      $(document).ready(function() {
+        $('a[href="' + this.location.pathname + '"]').parent().addClass('active');
+      });
+    </script>
+
+    <script src="/static/js/bootstrap-growl.min.js"> </script>
+    <script src="/static/js/app-growl.js"> </script>
+
+    {% block footopt %}
+    {% endblock %}  <!-- footopt (load other bottom of page scripts, etc... here) -->
+
+  </body>
+</html>
