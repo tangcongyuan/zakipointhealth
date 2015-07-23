@@ -40,20 +40,21 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="/home">Home</a></li>
-            <li><a href="/costs">Costs</a></li>
-            <li><a href="/progs">Company Programs</a></li>
-            <li><a href="/eHlth">Employee Health</a></li>
-            <li><a href="/qCare">Quality of Care</a></li>
+            <li><a href="/strategies">Strategies</a></li>
+            <li><a href="/cost_drivers">Cost Drivers</a></li>
+            <li><a href="/cohorts">Cohorts</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-            {% if request.session.username %}
+            {% if session.username %}
               <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-user"></span> {{request.session.username}}<span class="caret"></span></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-user"></span> {{fullname}}<span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
                   <li><a href="/signout"><span class="fa fa-sign-out"></span> Signout</a></li>
                   <li><a href="#"><span class="text-muted"><span class="fa fa-user"> Profile</span></a></li>
                 </ul>
               </li>
+	    {% else %}
+	      <!-- No username -->
             {% endif %}
           </ul>
         </div><!--/.navbar-collapse -->
