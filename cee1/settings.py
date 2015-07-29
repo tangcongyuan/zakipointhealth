@@ -1,4 +1,5 @@
 # Django settings for cee1 project.
+from logging import handlers
 import logging
 
 HOME_DIR = '/home/j'
@@ -140,7 +141,7 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 LOG_FILENAME = '/home/j/logs/zakipoint.log'
 
 # Add the log message handler to the logger
-handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=250000, backupCount=5)
+handler = handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=250000, backupCount=5)
 
 # Create formatter
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")

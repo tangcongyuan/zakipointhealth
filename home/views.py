@@ -17,9 +17,6 @@ logger.setLevel(logging.DEBUG)
 from session import AppUser
 
 def home(request):
-    ks = sorted(request.session.keys())
-    for k in ks:
-        logger.info('%s: %s', k, request.session[k])
     try:
         app_user = AppUser.get_by_username(request.session['username'])
         fullname = app_user.get_full_name()
