@@ -25,8 +25,26 @@ def home(request):
     return  render_to_response('home.html', {'session': request.session, 'fullname': fullname} )
 
 def narrow_network(request):
-    return  render_to_response('narrow_network.html', {'session': request.session} )
+    try:
+        app_user = AppUser.get_by_username(request.session['username'])
+        fullname = app_user.get_full_name()
+    except IndexError:
+        fullname = ''
+    return  render_to_response('narrow_network.html', {'session': request.session, 'fullname': fullname} )
+
+def pharm_cost(request):
+    try:
+        app_user = AppUser.get_by_username(request.session['username'])
+        fullname = app_user.get_full_name()
+    except IndexError:
+        fullname = ''
+    return  render_to_response('pharm_cost.html', {'session': request.session, 'fullname': fullname} )
 
 def notyet(request):
+    try:
+        app_user = AppUser.get_by_username(request.session['username'])
+        fullname = app_user.get_full_name()
+    except IndexError:
+        fullname = ''
     messages.add_message(request, messages.ERROR, 'Not implemented yet')
-    return  render_to_response('home.html', {'session': request.session} )
+    return  render_to_response('home.html', {'session': request.session, 'fullname': fullname} )
