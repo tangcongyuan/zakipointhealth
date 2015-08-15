@@ -1,0 +1,6 @@
+# Junk files
+data_folder/*
+dump_data_mongo.Rmd
+.DS_Store
+.Rhistory
+
