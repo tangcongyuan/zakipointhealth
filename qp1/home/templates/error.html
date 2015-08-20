@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block container_content %}
+
+<div class="container">
+
+  {% block page_header %}
+    <h4> Problem </h4>
+  {% endblock %} <!-- endblock page_header -->
+
+  <div class="row">
+    <div class="col-md-6">
+
+      {% if errmsg %}
+        {{ errmsg }}
+      {% else %}
+        The system encountered an unknown error.
+      {% endif %}
+
+
+      <br/> <br/> <br/>
+
+      {% if admin_link %}
+        Do you want to sign in to the admin control panel? <a href="/admin" >admin sign in</a>
+
+      {% endif %}
+
+    </div>
+  </div>
+
+</div>  <!-- end of container -->
+
+{% endblock %}
