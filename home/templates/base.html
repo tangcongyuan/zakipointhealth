@@ -122,13 +122,35 @@
 
     <!-- TODO - move this to an app-specific .js file, its for navbars -->
     <script>
+      function csrfSafeMethod(method) {
+      // these HTTP methods do not require CSRF protection
+      return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+      }
       $(document).ready(function() {
         $('a[href="' + this.location.pathname + '"]').parent().addClass('active');
+        var csrftoken = Cookies.get('csrftoken');
+        $.ajaxSetup({
+          beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+              xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+          }
+        });
+    {% block loadscript %}
+    {% endblock %}  <!-- loadscript -->
+      <!-- Javascripts to be loaded after the page is done loading, 
+	   must not include their own script tags,
+	   may include AJAX calls -->
       });
     </script>
+      {% block pagescript %}
+      <!-- Javascripts on the page, must include their own script tags, may include AJAX calls -->
+      {% endblock %}  <!-- pagescript -->
 
     <script src="/static/js/bootstrap-growl.min.js"> </script>
     <script src="/static/js/app-growl.js"> </script>
+    <script src="/static/js/js.cookie.js"> </script>
+    <script src="/static/js/json2.min.js"> </script>
 
     {% block footopt %}
     {% endblock %}  <!-- footopt (load other bottom of page scripts, etc... here) -->

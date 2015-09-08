@@ -60,7 +60,12 @@
     </div>
   </div>
 </div>
-    {% block pagescript %}
-    {% endblock %}  <!-- pagescript -->
+    {% block loadscript %}
+        $.post('/rpc/1/home/', {'func': 'add', 'args': JSON.stringify(['5', '31'])}, function(data) {
+          alert (data);
+        }).fail(function() {
+          alert( "error" );
+        });
+    {% endblock %}  <!-- loadscript -->
 
 {% endblock %}
