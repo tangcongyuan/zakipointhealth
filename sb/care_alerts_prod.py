@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 11 19:07:22 2015
+Created on Fri Aug 21 16:41:57 2015
 
 @author: snehasishbarman
 """
+
 
 import sys
 sys.path.append("./dw_connection/")
@@ -12,6 +13,9 @@ import requests as req
 import pprint as pp
 from dw_connection import dw_connect as dw
 import csv
+import pickle
+import os
+import logging as log
 
 PGT = None
 PAGE = 1
@@ -22,9 +26,9 @@ def getMembers(size, page):
              "pageSize": size, 
              "page": page,
              "clientName": dw.CLIENT_NAME,
-             "query": "{and : [{'relationshipId.eq': 'S'}, {'currentStatus.eq': 'Active'}]}",
-             "fields": "[unblindMemberId, memberId, memberZip, currentStatus, memberCity, memberState, relationshipId, relationshipIdName, rxTotalPaidAmount, medTotalPaidAmount]",
-             "phiCSDate": "01-07-2008",
+             #"query": "{and : [{relationshipId.eq: SP}]}", # {'currentStatus.eq': 'Active'}
+             #"fields": "[unblindMemberId, memberId, memberZip, currentStatus, memberCity, memberState, relationshipId, relationshipIdName, rxTotalPaidAmount, medTotalPaidAmount]",
+             "phiCSDate": "01-07-2010",
              "phiCEDate": "06-30-2015"
              }
     qr = req.get(dw.DAS_URL + "/memberSearch", params = query, verify = False)
@@ -37,7 +41,7 @@ def getCareAlerts(memberId, size, page):
              "clientName": dw.CLIENT_NAME,
              #"query": "{and: [{memberId.eq: " + memberId + "}]}",
              "fields": "[CareAlert, memberId]",
-             "phiCSDate": "01-07-2008",
+             "phiCSDate": "01-07-2010",
              "phiCEDate": "06-30-2015"
              }
     qr = req.get(url = dw.DAS_URL + "/memberSearch", params = query, verify = False)
@@ -46,23 +50,30 @@ def getCareAlerts(memberId, size, page):
 
 if __name__ == "__main__":
     req.packages.urllib3.disable_warnings()
-    PGT = dw.getPGT("snehasish.barman@zakipoint.com", "Snehasish@123")
-    print PGT
-    qr = getMembers(1,1)
-    N_MEMBERS = qr["summary"]["totalCounts"]
-    print N_MEMBERS
-    qr = getCareAlerts(None, 1, 1)
-    N_GAPS = qr["summary"]["totalCounts"]
-    qr = getMembers(N_MEMBERS, PAGE)    
-    qr_g = getCareAlerts(None, N_GAPS, PAGE)
-    qr_gaps = dict()
-    for key, val in qr_g["result_sets"].items():
-        qr_gaps[val["memberId"]] = val
-        del qr_g["result_sets"][key]
-    del qr_g
+    if not os.path.exists("./data_folder/mem_care_prod.dat") or not os.path.exists("./data_folder/care_prod.dat"):
+        log.info("Fetching records from API")
+        PGT = dw.getPGT("snehasish.barman@zakipoint.com", "Snehasish@123")
+        print PGT
+        qr = getMembers(1,1)
+        N_MEMBERS = qr["summary"]["totalCounts"]
+        print "Members: %d" % N_MEMBERS
+        qr = getCareAlerts(None, 1, 1)
+        N_GAPS = qr["summary"]["totalCounts"]
+        print "Gaps: %d" % N_GAPS
+        qr = getMembers(N_MEMBERS, PAGE)    
+        qr_g = getCareAlerts(None, N_GAPS, PAGE)
+        qr_gaps = dict()
+        for key, val in qr_g["result_sets"].items():
+            qr_gaps[val["memberId"]] = val
+            del qr_g["result_sets"][key]
+        del qr_g
+        pickle.dump(qr, open("./data_folder/mem_care_prod.dat", "wb"))
+        pickle.dump(qr_gaps, open("./data_folder/care_prod.dat", "wb"))
+    qr = pickle.load(open("./data_folder/mem_care_prod.dat", "rb"))
+    qr_gaps = pickle.load(open("./data_folder/care_prod.dat", "rb"))
     
-    fl_members = open("./data_folder/members_care.csv", "w+")
-    fl_care = open("./data_folder/care_alerts.csv", "w+")
+    fl_members = open("./data_folder/members_care_prod.csv", "w+")
+    fl_care = open("./data_folder/care_alerts_prod.csv", "w+")
     csv_mem = csv.writer(fl_members)
     csv_mem.writerow(["Member_ID", "Zip_Code", "Current_Status", "Relation_Code", "Relationship_Name", "Total_Rx_Cost", "Total_Medical_Cost"])
     csv_care = csv.writer(fl_care)
@@ -71,14 +82,16 @@ if __name__ == "__main__":
     memberIds = set([])
     try:
         for member, val in qr["result_sets"].items():
+            if "relationshipId" not in val or val["relationshipId"] != "SP":
+                continue
             if "CareAlert" not in qr_gaps[val["memberId"]] or not qr_gaps[val["memberId"]].get("CareAlert"):
                 continue
             memberIds.add(val["unblindMemberId"])
             csv_mem.writerow([val.get("unblindMemberId"),
                               val.get("memberZip"),
                               val.get("currentStatus"),
-                              val.get("memberCity"),
-                              val.get("memberState"),
+                              #val.get("memberCity"),
+                              #val.get("memberState"),
                               val.get("relationshipId"),
                               val.get("relationshipIdName"),
                               val.get("rxTotalPaidAmount"),
@@ -96,14 +109,3 @@ if __name__ == "__main__":
         print "Total Members Processed: %d" % len(memberIds)
         fl_members.close()
         fl_care.close()
-            
-            
-    
-    
-    
-    
-    
-
-
-    
-    
