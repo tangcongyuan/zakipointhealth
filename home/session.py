@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
+from cee1.settings import VERSION_STAMP
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 logger = logging.getLogger('zakipoint')
@@ -91,6 +92,10 @@ class AppUser(User):
             return None
                                                                                         
 def signin(request):
+    if 'username' in request.session:
+        uname = request.session['username']
+        logger.info('%s signing in again?' % uname)
+        return redirect('/home')
     return render_to_response('sign-in.html', {}, context_instance=RequestContext(request) )
 
 def splash(request):
@@ -160,7 +165,6 @@ def sign_in_form(request):
                     request.session['user_entity'] = None
                     # TODO: should we fail the signin? prob not, but no a customer of any kind so send to admin page? check is_admin, all that
 
-                messages.add_message(request, messages.INFO, 'Welcome %s' % email)
                 login(request, user)
                 return redirect('/home')
             else:

@@ -1,6 +1,8 @@
 # Django settings for cee1 project.
 from logging import handlers
-import logging
+import logging, time
+
+VERSION_STAMP =  int(time.mktime(time.gmtime()))
 
 HOME_DIR = '/home/j'
 PROJ_DIR = HOME_DIR + '/cee1'
