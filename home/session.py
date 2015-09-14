@@ -90,7 +90,7 @@ class AppUser(User):
             # TODO - maybe this should be an assert and we can raise an exception. maybe only in dev.
             logger.error('Username %s is not a valid email address' % username)
             return None
-                                                                                        
+
 def signin(request):
     if 'username' in request.session:
         uname = request.session['username']

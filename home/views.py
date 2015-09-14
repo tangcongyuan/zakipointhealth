@@ -24,7 +24,8 @@ def home(request):
         app_user = AppUser.get_by_username(request.session['username'])
         fullname = app_user.get_full_name()
     except (IndexError, KeyError):
-        return redirect('/signout/')
+        logout(request)  # logut works whether someone is signed in or not. session wiped.
+        return redirect('/')
     context = {'session': request.session, 'path': request.path, 'fullname': fullname, 'version': VERSION_STAMP}
     return  render_to_response('home.html', context)
 
@@ -33,7 +34,8 @@ def narrow_network(request):
         app_user = AppUser.get_by_username(request.session['username'])
         fullname = app_user.get_full_name()
     except (IndexError, KeyError):
-        return redirect('/signout/')
+        logout(request)  # logut works whether someone is signed in or not. session wiped.
+        return redirect('/')
     context = {'session': request.session, 'path': request.path, 'fullname': fullname, 'version': VERSION_STAMP}
     return  render_to_response('narrow_network.html', context)
 
@@ -42,7 +44,8 @@ def cost_pharm(request):
         app_user = AppUser.get_by_username(request.session['username'])
         fullname = app_user.get_full_name()
     except (IndexError, KeyError):
-        return redirect('/signout/')
+        logout(request)  # logut works whether someone is signed in or not. session wiped.
+        return redirect('/')
     context = {'session': request.session, 'path': request.path, 'fullname': fullname, 'version': VERSION_STAMP}
     return  render_to_response('cost_pharm.html', context)
 
