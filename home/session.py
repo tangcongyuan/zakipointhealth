@@ -31,13 +31,6 @@ class AppError(Exception):
     def __str__(self):
         return repr(self.value)
 
-def validateEmail(email):
-    try:
-        validate_email(email)
-        return True
-    except ValidationError:
-        return False
-                                            
 class AppUser(User):
     """
     Proxy for User, because we want to add some methods
@@ -90,6 +83,39 @@ class AppUser(User):
             # TODO - maybe this should be an assert and we can raise an exception. maybe only in dev.
             logger.error('Username %s is not a valid email address' % username)
             return None
+
+class AppGroup(Group):
+    """
+    Proxy for Group, because we want to add some methods
+    """
+    class Meta:
+        proxy = True
+
+    def __unicode__(self):
+        return "%s (%s)" % (self.name, self.co_type)
+
+    @property
+    def co_type(self):
+        if self.admin_co.all(): # admin company (e.g., zakipoint)
+            group_type = 'admin_co'
+        elif self.bc_co.all(): # benefits consultant company
+            group_type = 'bc_co'
+        elif self.si_co.all(): # self-insured company
+            group_type = 'si_co'
+        else:
+            group_type = ''
+        return group_type
+
+def urlsafe_uuid():
+    r_uuid = base64.urlsafe_b64encode(uuid.uuid4().bytes)
+    return r_uuid.replace('=', '')
+
+def validateEmail(email):
+    try:
+        validate_email(email)
+        return True
+    except ValidationError:
+        return False
 
 def signin(request):
     if 'username' in request.session:
