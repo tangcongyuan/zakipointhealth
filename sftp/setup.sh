@@ -11,9 +11,10 @@ sudo vi /etc/vsftpd/vsftpd.conf
 sudo systemctl restart sshd.service
 sudo systemctl restart vsftpd.service
 
-sudo useradd -m hsirx -g sftpAccess
+sudo useradd -m hsirx -g sftpAccess -s /sbin/nologin
 sudo passwd hsirx
 sudo chown root /home/hsirx
 sudo chmod 750 /home/hsirx
-sudo mkdir /home/hsirx/www
-sudo chown hsirx:sftpAccess /home/hsirx/www
+sudo rm /home/hsirx/.bashrc /home/hsirx/.bash_profile /home/hsirx/.bash_logout
+sudo mkdir /home/hsirx/filedir
+sudo chown hsirx:sftpAccess /home/hsirx/filedir
