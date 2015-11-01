@@ -137,14 +137,14 @@
           }
         });
     {% block loadscript %}
-    {% endblock %}  <!-- loadscript -->
-      <!-- Javascripts to be loaded after the page is done loading, 
-	   must not include their own script tags,
-	   may include AJAX calls -->
+      /* Javascripts to be loaded after the page is done loading, 
+	 must not include their own script tags,
+	 may include AJAX calls */
+    {% endblock %}  
       });
     </script>
-      {% block pagescript %}
       <!-- Javascripts on the page, must include their own script tags, may include AJAX calls -->
+      {% block pagescript %}
       {% endblock %}  <!-- pagescript -->
 
     <script src="/static/js/bootstrap-growl.min.js"> </script>

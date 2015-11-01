@@ -1,3 +1,5 @@
+import base64, uuid, types, pdb
+from django.db import models, IntegrityError
 from django.core.context_processors import csrf
 from django.views.decorators.csrf import csrf_protect
 from django.template import RequestContext
@@ -8,9 +10,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib import messages
 from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-
-from cee1.settings import VERSION_STAMP
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from zphalfa.settings import VERSION_STAMP
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 logger = logging.getLogger('zakipoint')
@@ -31,7 +32,24 @@ class AppError(Exception):
     def __str__(self):
         return repr(self.value)
 
-class AppUser(User):
+class AuthObject(object):
+    @classmethod
+    def find(cls, **kwargs):
+        auth_obj = cls.objects.get(**kwargs)
+        if auth_obj:
+            logger.debug('Found %s: %s' % (cls.__name__, vars(auth_obj)))
+            return auth_obj
+        else:
+            logger.debug('Could not find %s(%s)' % (cls.__name__, kwargs))
+            return None
+
+co_types = ['admin_co', 'channel', 'employer']
+
+def _appuser_unicode(self):
+    return "%s %s" % (vars(self),
+                      str([grp.name for grp in self.groups.all()]))
+
+class AppUser(User, AuthObject):
     """
     Proxy for User, because we want to add some methods
     Reference: https://docs.djangoproject.com/en/1.6/topics/db/models/#proxy-models
@@ -39,72 +57,79 @@ class AppUser(User):
     class Meta:
         proxy = True
 
+    @classmethod
+    def get_or_create(cls, email, password, **kwargs):
+        try:
+            this_user = User.objects.create_user(username=email, email=email, password=password)
+            created = True
+        except IntegrityError:
+            this_user = User.objects.get(username = email)
+            created = False
+        is_dirty = False
+        # ref http://stackoverflow.com/questions/972/adding-a-method-to-an-existing-object
+        this_user.__unicode__ = types.MethodType( _appuser_unicode, this_user )
+
+        for kw  in kwargs.keys():
+            if kw == 'group':
+                this_user.groups.add(group)
+            elif  kw != 'password':
+                setattr(this_user, kw, kwargs[kw])
+                logger.info('U.%s = %s', email, kw, kwargs[kw])
+                is_dirty = True
+        if is_dirty:
+            this_user.save()
+        return this_user, created
+
+class Company(models.Model):
+    group   = models.OneToOneField(Group, primary_key=True)
+    co_type = models.CharField(max_length=10, choices=co_types)
+
+#    def __init__(self, name, co_type):
+#        pdb.set_trace()
+#        try:
+#            this_group = Group.objects.create(name = name)
+#            self.group_id = this_group.id
+#        except IntegrityError:
+#            old_group = Group.objects.get(name = name)
+#            if hasattr(old_group, 'company'):
+#                old_group.company.delete()
+#            self.group = old_group
+#        self.co_type = co_type
+        
     def __unicode__(self):
-        return "%s %s" % (self.username,
-                          str([grp.name for grp in self.groups.all()]),
-        )
+        return self.group.name + '(%s)'%self.co_type
 
     @classmethod
-    def new(cls, email, passwd=None, superuser=False, group=None):
-        new_user, created = User.objects.get_or_create(username=email, email=email)
-        if created and passwd:
-            new_user.set_password(passwd)
-            logger.info('U/P %s/%s', email, passwd)
-        if passwd:
-            new_user.is_staff = True
-            new_user.is_superuser = superuser
-        new_user.save()
-        if group:
-            new_user.groups.add(group)
-        return new_user
+    def readonly_fields(cls):
+        return ('uid', 'group', 'co_type')
 
     @classmethod
-    def get_by_email(cls, email):
-        """ return user by email address """
-
-        u = cls.objects.get(email = email)
-        if u:
-            logger.debug('Found AppUser %s' % email)
-            return u
-        else:
-            logger.debug('Could not find AppUser %s' % email)
-            return None
-
+    def create(cls, name, co_type):
+        this_group = Group.objects.create(name = name)
+        this_co = Company(group = this_group, co_type = co_type )
+        this_co.save()
+        return this_co
     @classmethod
-    def get_by_username(cls, username):
-        """ find entity by username
-        en-passant, validates that username is an email address
-        """
+    def get(cls, name):
+        pdb.set_trace()
+        this_co = Company.objects.all().filter(group__name=name).get()
+        this_group = Group.objects.get(name = name)
+        this_co = this_group.company
+        return this_co
 
-        is_email = validateEmail(username)
-        if is_email:
-            return cls.objects.get(username = username)
-        else:
-            # TODO - maybe this should be an assert and we can raise an exception. maybe only in dev.
-            logger.error('Username %s is not a valid email address' % username)
-            return None
-
-class AppGroup(Group):
-    """
-    Proxy for Group, because we want to add some methods
-    """
-    class Meta:
-        proxy = True
-
-    def __unicode__(self):
-        return "%s (%s)" % (self.name, self.co_type)
-
-    @property
-    def co_type(self):
-        if self.admin_co.all(): # admin company (e.g., zakipoint)
-            group_type = 'admin_co'
-        elif self.bc_co.all(): # benefits consultant company
-            group_type = 'bc_co'
-        elif self.si_co.all(): # self-insured company
-            group_type = 'si_co'
-        else:
-            group_type = ''
-        return group_type
+#class AppGroup(Group, AuthObject):
+#    """
+#    Proxy for Group, because we want to add some methods
+#    """
+#    class Meta:
+#        proxy = True
+#
+#    def __unicode__(self):
+#        return "%s (%s)" % (self.name, self.co_type)
+#
+#    @property
+#    def co_type(self):
+#        return self.company.co_type
 
 def urlsafe_uuid():
     r_uuid = base64.urlsafe_b64encode(uuid.uuid4().bytes)
@@ -116,6 +141,36 @@ def validateEmail(email):
         return True
     except ValidationError:
         return False
+
+class UserRole(models.Model):
+    name = models.CharField(max_length=48)
+
+    def __unicode__(self):
+        return self.name + str(self.get_capability_names())
+
+    def get_capabilities(self):
+        return [cap for cap in self.allowed.all()]
+    capabilities = property(get_capabilities)
+
+    def get_capability_names(self):
+        return [cap.name for cap in self.allowed.all()]
+    capability_names = property(get_capability_names)
+
+    @classmethod
+    def create(cls, name, capabilities):
+        new_role, created = UserRole.objects.get_or_create(name=name)
+        new_role.save()
+        for capability in capabilities:
+            new_c, created = Capability.objects.get_or_create(name=capability)
+            new_c.save()
+            new_c.roles.add(new_role)
+        return new_role
+
+class Capability(models.Model):
+    name = models.CharField(max_length=48)
+    roles = models.ManyToManyField(UserRole, related_name="allowed")
+    def __unicode__(self):
+        return self.name
 
 def signin(request):
     if 'username' in request.session:
@@ -182,7 +237,7 @@ def sign_in_form(request):
                 request.session['app_user'] = app_user.pk
 
                 # get the entity for this user
-                user_entity = AppUser.get_by_username(email)
+                user_entity = AppUser.find( username = email)
                 if user_entity:
                     logger.debug('Saving User Entity in the session for %s' % email)
                     request.session['user_entity'] = user_entity.pk
@@ -201,4 +256,5 @@ def sign_in_form(request):
         else:
             logger.warning('Invalid Signin %s' % email)
             return render_to_response('error.html',
-                {'errmsg': 'Email and/or Password not found - TODO: we will redisplay form!'}, context_instance=RequestContext(request) )
+                {'errmsg': 'Email and/or Password not found, redirecting...'}, context_instance=RequestContext(request) )
+

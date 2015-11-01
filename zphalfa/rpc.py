@@ -45,7 +45,7 @@ def RPCHandler(request, mObj = RPCMethods()):
         try:
             result = func(*args)
             # http://stackoverflow.com/questions/8409194/unable-to-deserialize-pymongo-objectid-from-json
-            return HttpResponse(json.dumps(result, default=json_util.default), mimetype="application/json")
+            return HttpResponse(json.dumps(result, default=json_util.default))
             # return HttpResponse(json.dumps(result), mimetype="application/json")
         except Exception as inst:
             logger.error('Failed %s', str(inst))
