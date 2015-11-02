@@ -115,6 +115,22 @@ class RPCMethods:
         answer = list(collection.aggregate(pipeline1))
         logger.info("eligible member in each year: %s", answer)
         return answer
+    def participating(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        collection = db['biometrics']
+        pipeline2 = [
+            {
+                "$group":
+                {
+                    "_id":{"Year":"$Year","Status":"$HRAStat"},
+                    "count":{"$sum":1}
+                }
+            }
+        ]
+        answer = list(collection.aggregate(pipeline2))
+        logger.info("participating members in each year: %s", answer)
+        return answer
 
 def RPCHandler(request):
     logger.info('home.views.RPCHandler')

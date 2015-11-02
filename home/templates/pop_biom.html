@@ -11,9 +11,13 @@
 	{% endif %}
     </div></div>
     <div class="row">
+      <p>Eligible</p>
       <div class="col-md-12" id="eligible" style="height: 44px; text-align:center; display:block;">
-      </div>
-    </div>
+      </div></div>
+    <div class="row">
+      <p>Participating</p>
+      <div class="col-md-12" id="participating" style="height: 44px; text-align:center; display:block;">
+      </div></div>
     <div class="row">
       <div class="col-md-12"><div style="text-align:center; display:block;">
 	<img src="static/dimages/cost_driver_biometrics_oct6.png?version={{ version }}" />
@@ -23,12 +27,21 @@
 
 
 {% endblock %}
+{% if hm_flag %}
 {% block loadscript %}
         $.post('/rpc/1/home/', {'func': 'eligible', 'args': JSON.stringify([])}, function(data) {
           $("#eligible").html(data);
         }).fail(function() {
-          alert( "error" );
+          $("#eligible").html('Error with eligibility rates');
+        }); 
+
+        $.post('/rpc/1/home/', {'func': 'participating', 'args': JSON.stringify([])}, function(data) {
+          $("#participating").html(data);
+        }).fail(function() {
+          $("#participating").html('Error with participation rates');
         });
+
 {% endblock %}  <!-- loadscript -->
+{% endif %}
 {% block pagescript %}
 {% endblock %}
