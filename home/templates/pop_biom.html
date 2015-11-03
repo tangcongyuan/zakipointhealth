@@ -8,12 +8,15 @@
 
   <div class="container">
   <div class="row">
-
     <div class="col-md-12"><div style="text-align:center; display:block;">
   {% if hm_flag %}
     <img src="static/dimages/cedar-rapids-logo.png?version={{ version }}" style="width: 224px;" />
   {% endif %}
     </div></div>
+    <div class="col-md-12">
+        <h2>Population Health</h2>
+        <h3>How has my population been impacted by health programs over time?</h4>
+    </div>
   {% if hm_data %}
 
     <div class="row">
@@ -53,13 +56,102 @@
       </div></div>
   {% endif %}
 
-    <div class="row">
-      <div class="col-md-12"><div style="text-align:center; display:block;">
-  <img src="static/dimages/cost_driver_biometrics_oct6.png?version={{ version }}" />
-      </div></div>
-    </div>
-  </div>
+        <div id="tabs">
+          <ul>
+            <li><a href="#pi">PROGRAM IMPACT</a></li>
+            <li><a href="#op">OPPORTUNITIES</a></li>
+            <li><a href="#ep">EXPLORE POPULATION</a></li>
+          </ul>
+          <div id="pi">
+              <div class="center">
+                  <h4>POPULATION OVERVIEW</h4> 
+                  <p>Overall participation has increased <b>X%</b> in the last <b>3 years</b></p>
+                    <div id="total_pop" class="side-by-side div-size">
+                       
+                    </div>
+                    <div id="participation_rates" class="side-by-side div-size">
+                      
+                    </div>
+                    <div id="engagement_rates" style="display: inline-block;" class="div-size">
+                      
+                    </div>
+              </div>
+              <hr></hr>
+              <div class="center">
+                  <h4>CHANGES IN COST</h4>
+                  <p>Per member per month cost has decreased by <b>X%</b> over the last <b>3 years</b></p>
+                    <div>
+                        <div id="blank" class="side-by-side div-size" style="visibility: hidden;"></div>
+                        <div id="total_pmpm" class="side-by-side div-size">
 
+                        </div>
+                        <div id="blankm" class="side-by-side div-size" style="visibility: hidden;"></div>
+                    </div>
+                    <div id="non-participant_pmpm" class="side-by-side div-size">
+
+                    </div>
+                    <div id="participant_pmpm" class="side-by-side div-size">
+
+                    </div>
+                    <div id="engaged_pmpm" style="display: inline-block;" class="div-size">
+
+                    </div>
+                   <h4>CHANGES IN UTILIZATION</h4>
+                  <p>Claims activity has moved in a positive direction, with <b>X%</b> of claims now under $500 and <b>Y%</b> over $10K</p>
+                     <div>
+                        <div id="blank" class="side-by-side div-size" style="visibility: hidden;"></div>
+                        <div id="total_population_claims" class="side-by-side div-size">
+                            
+                        </div>
+                        <div id="blankm" class="side-by-side div-size" style="visibility: hidden;"></div>
+                    </div>
+                    <div id="non-participant_claims" class="side-by-side div-size">
+
+                    </div>
+                    <div id="participant_claims" class="side-by-side div-size">
+
+                    </div>
+                    <div id="engaged_claims" style="display: inline-block;" class="div-size">
+
+                    </div>
+              </div>
+              <hr></hr>
+              <div class="center">
+                  <h4>RISK DISTRIBUTION</h4>
+                  <p>High risk population has <b>decreased by NN%</b> over the last <b>3 years</b></p>
+                    <div id="participant_risk" class="side-by-side div-size-big" style="margin-right: 5px;">
+                       
+                    </div>
+                    <div class="div-size-big" style="border-left:medium #CC0000 solid; display: inline-block; width: 1px; margin-right: 5px; background-color: white; opacity: 0.03;"></div>
+                    <div id="engaged_risk" style="display: inline-block;" class="div-size-big">
+                      
+                    </div>
+                  <h4>CHANGES IN RISK</h4>
+                  <p>Engagement resulted in <b>X%</b> of the population moving to a lower risk level in the last <b>3 years</b></p>
+                    <div id="changes_risk_participants" class="side-by-side div-size-big" style="margin-right: 5px;">
+                       
+                    </div>
+                    <div class="div-size-big" style="border-left:medium #CC0000 solid; display: inline-block; width: 1px; margin-right: 5px; background-color: white; opacity: 0.03;"></div>
+                    <div id="changes_risk_engaged" style="display: inline-block;" class="div-size-big">
+                      
+                    </div>
+              </div>
+              <hr></hr>
+              <div class="center">
+                  <h4>IMPROVED BIOMETRICS</h4>
+                  <p>Engagement resulted in improvement for <b>X</b> biometrics:<b>Body Mass Index</b> and <b>Blood Pressure</b></p>
+                    <div>
+                        <div id="bmi_participants" class="side-by-side div-size">
+
+                        </div>
+                        <div id="bmi_engaged" class="side-by-side div-size"></div>
+                    </div>
+                    <div id="blood_press_participants" class="side-by-side div-size">
+
+                    </div>
+                    <div id="blood_press_engaged" class="side-by-side div-size">
+
+                    </div>
 
 {% endblock %}
 {% if hm_flag %}

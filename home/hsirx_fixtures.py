@@ -55,9 +55,9 @@ print 'cursoring...'
 claims = db['claims']
 #looped = 0
 #print claims.count()
-cursor = claims.find()
+claims_cursor = claims.find()
 uids = []
-for doc in cursor:
+for doc in claims_cursor:
     # modify doc ..
     #collection.save(doc)
     if (doc['UID'] not in uids) and len(uids) < 1:
@@ -69,7 +69,18 @@ for doc in cursor:
     except:
         amount = 0.0
     result = db.claims.update_one({'_id': doc['_id']}, {"$set": { "Paid": amount } })
-#    if looped < 3:
-#        print looped, doc['UID'], doc['Paid']
-#    looped += 1
+
+
+biometrics = db['biometrics']
+biometrics_cursor = biometrics.find()
+
+for doc in biometrics_cursor:
+    # modify doc ..
+    #collection.save(doc)
+    try:
+        year = int(doc['Year'])
+    except:
+        year = 1970
+    result = db.biometrics.update_one({'_id': doc['_id']}, {"$set": { "Year": year } })
+
 

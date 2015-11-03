@@ -216,8 +216,8 @@ class RPCMethods:
         return answer
 
     def members_engaged(self):
-        answer = 'Engaged Member count by year not ready yet'
-        return answer
+#        answer = 'Engaged Member count by year not ready yet'
+#        return answer
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         collection = db['claims']
@@ -252,8 +252,8 @@ class RPCMethods:
         return answer
 
     def expenses_engaged(self):
-        answer = 'Engaged Member Expenses by year not ready yet'
-        return answer
+#        answer = 'Engaged Member Expenses by year not ready yet'
+#        return answer
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         collection = db['claims']
