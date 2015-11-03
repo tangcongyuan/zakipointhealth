@@ -24,17 +24,23 @@ from pymongo import MongoClient
 # To run it, execute:
 #    python manage.py shell < home/hsirx_fixtures.py > /dev/null
 #
-co_records = [{"Name": "City of Cedar Rapids",
-               "Logo": "static/dimages/cedar-rapids-logo.png",
-               "Members": 2556,
-               "PSA": [4.0],
-               "Fasting Blood Glucose": [100, 126],
-               "A1C": [6.0, 6.5],
-               "LDL": [160, 190],
-               "BMI": [30, 35],
-               "hypertension": {'systolic': [90,100], 'diastolic': [140, 160]},
-           },
-          ]
+co_records = [
+    {"Name": "City of Cedar Rapids",
+     "Logo": "static/dimages/cedar-rapids-logo.png",
+     "Members": "1309",
+     "Spend": "$34,034K",
+     "PSA": [4.0],
+     "Fasting Blood Glucose": [100, 126],
+     "A1C": [6.0, 6.5],
+     "LDL": [160, 190],
+     "BMI": [30, 35],
+     "hypertension": {'systolic': [90,100], 'diastolic': [140, 160]},
+ }, {"Name": "Tilde Inc.",
+     "logo": "static/dimages/tilde.png",
+     "Members": "879",
+     "Spend": "$12M",
+ }
+]
 client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
 db = client[DATABASES['mongo']['NAME']]
 companies = db['companies']
@@ -44,4 +50,26 @@ for co_record in co_records:
         companies.find_one_and_replace({'Name': co_record['Name']}, co_record)
     else:
         companies.insert_one(co_record)
+
+print 'cursoring...'
+claims = db['claims']
+#looped = 0
+#print claims.count()
+cursor = claims.find()
+uids = []
+for doc in cursor:
+    # modify doc ..
+    #collection.save(doc)
+    if (doc['UID'] not in uids) and len(uids) < 1:
+        uids.append(doc['UID'])
+        print doc['UID'], doc['Paid']
+    # "_id" : ObjectId("56365f77ff226802639988cb")
+    try:
+        amount = float(doc['Paid'])
+    except:
+        amount = 0.0
+    result = db.claims.update_one({'_id': doc['_id']}, {"$set": { "Paid": amount } })
+#    if looped < 3:
+#        print looped, doc['UID'], doc['Paid']
+#    looped += 1
 
