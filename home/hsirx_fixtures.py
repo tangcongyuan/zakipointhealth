@@ -27,8 +27,8 @@ from pymongo import MongoClient
 co_records = [
     {"Name": "City of Cedar Rapids",
      "Logo": "static/dimages/cedar-rapids-logo.png",
-     "Members": "1309",
-     "Spend": "$34,034K",
+     "Members": 1309,
+     "Spend": 34034000,
      "PSA": [4.0],
      "Fasting Blood Glucose": [100, 126],
      "A1C": [6.0, 6.5],
@@ -57,18 +57,6 @@ claims = db['claims']
 #print claims.count()
 claims_cursor = claims.find()
 uids = []
-for doc in claims_cursor:
-    # modify doc ..
-    #collection.save(doc)
-    if (doc['UID'] not in uids) and len(uids) < 1:
-        uids.append(doc['UID'])
-        print doc['UID'], doc['Paid']
-    # "_id" : ObjectId("56365f77ff226802639988cb")
-    try:
-        amount = float(doc['Paid'])
-    except:
-        amount = 0.0
-    result = db.claims.update_one({'_id': doc['_id']}, {"$set": { "Paid": amount } })
 
 
 biometrics = db['biometrics']

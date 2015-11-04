@@ -136,6 +136,18 @@ class RPCMethods:
         answer = list(collection.aggregate(pipeline2))
         logger.info("participating members in each year: %s", answer)
         return answer
+    def low_claims(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        collection = db['claims']
+
+        #eligible members for each year
+        pipeline1 = [
+            {"$group": {"_id": "$Year", "count": {"$sum": 1}}}
+        ]
+        answer = list(collection.aggregate(pipeline1))
+        logger.info("eligible member in each year: %s", answer)
+        return answer
 
     def members_participating(self):
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))

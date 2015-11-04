@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block container_content %}
+
+  <style>
+	.axis {
+	  font: 10px sans-serif;
+	}
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
+  </style>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+
+
+  <div class="container">
+  <div class="row">
+
+    <div class="col-md-12"><div style="text-align:center; display:block;">
+	{% if hm_flag %}
+	  <img src="static/dimages/cedar-rapids-logo.png?version={{ version }}" style="width: 224px;" />
+	{% endif %}
+    </div></div>
+    <div class="row">
+      <p>Eligible</p>
+      <div class="col-md-12" id="eligible" style="height: 44px; text-align:center; display:block;">
+      </div></div>
+    <div class="row">
+      <p>Participating</p>
+      <div class="col-md-12" id="participating" style="height: 44px; text-align:center; display:block;">
+      </div></div>
+    <div class="row">
+      <div class="col-md-12"><div style="text-align:center; display:block;">
+	<img src="static/dimages/cost_driver_biometrics_oct6.png?version={{ version }}" />
+      </div></div>
+    </div>
+  </div>
+
+
+{% endblock %}
+{% if hm_flag %}
+{% block loadscript %}
+
+		
+		
+
+        $.post('/rpc/1/home/', {'func': 'eligible', 'args': JSON.stringify([])}, function(data) {
+			$("#eligible").html(data);
+			
+			console.log(data);
+			data = JSON.parse(data);
+			$.each(data, function(i, item) {
+				item.date = parseDate(item._id);
+				item.value = +item.count;
+			});
+
+			x.domain(data.map(function(d) { return d.date; }));
+			y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+			svg.append("g")
+			.attr("class", "x axis")
+			.attr("transform", "translate(0," + height + ")")
+			.call(xAxis)
+			.selectAll("text")
+			.style("text-anchor", "end")
+			.attr("dx", ".9em")
+
+			var bar = svg.selectAll("bar")
+						 .data(data)
+						 .enter()
+
+			bar.append("rect")
+			   .style("fill", "steelblue")
+			   .attr("x", function(d) { return x(d.date); })
+			   .attr("width", x.rangeBand())
+			   .attr("y", function(d) { return y(d.value); })
+			   .attr("height", function(d) { return height - y(d.value); });
+
+			bar.append("text")
+			   .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+			   .attr("y", 0)
+			   .attr("dx", "-.3em")
+			   .attr("dy", "-.3em")
+			   .text(function(d) { return d.value; });
+
+			svg.append("text")
+			   .text("Total Population")
+			   .attr("x", width/2)
+			   .attr("y", 0)
+			   .attr("dx", "-3em")
+			   .attr("dy", "-2em");
+
+        }).fail(function() {
+          $("#eligible").html('Error with eligibility rates');
+        }); 
+
+        $.post('/rpc/1/home/', {'func': 'participating', 'args': JSON.stringify([])}, function(data) {
+          $("#participating").html(data);
+        }).fail(function() {
+          $("#participating").html('Error with participation rates');
+        });
+
+{% endblock %}  <!-- loadscript -->
+{% endif %}
+{% block pagescript %}
+{% endblock %}
+
