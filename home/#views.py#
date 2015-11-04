@@ -63,9 +63,7 @@ def pop_biom(request):
         logout(request)  # logout works whether someone is signed in or not. session wiped.
         return redirect('/')
 
-    hm_flag = True if request.session['username'] in hm_users else False
-    context = {'session': request.session, 'path': request.path, 'version': VERSION_STAMP,
-               'fullname': fullname, 'hm_flag': hm_flag,}
+    context = {'session': request.session, 'path': request.path, 'fullname': fullname, 'version': VERSION_STAMP}
     return  render_to_response('pop_biom.html', context)
 
 def pop_risk(request):
@@ -140,7 +138,7 @@ class RPCMethods:
 
         #eligible members for each year
         pipeline1 = [
-            {"$group": {"_id": "$Year", "count": {"$sum": 1}}}
+            {"$group": {"_id": {'year':"$Year", "UID": "$UID"}, "paid": {"$sum": "$Paid"}}}
         ]
         answer = list(collection.aggregate(pipeline1))
         logger.info("eligible member in each year: %s", answer)

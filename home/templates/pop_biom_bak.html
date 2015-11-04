@@ -1,18 +1,14 @@
 {% extends "base.html" %}
 
 {% block container_content %}
-  <link rel="stylesheet" type="text/css"  href="/static/css/barchart.css">
-  <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script src="/static/js/barchart.js"> </script>
-  <!-- Please make sure jQuery is also loaded. -->
 
   <div class="container">
   <div class="row">
 
     <div class="col-md-12"><div style="text-align:center; display:block;">
-  {% if hm_flag %}
-    <img src="static/dimages/cedar-rapids-logo.png?version={{ version }}" style="width: 224px;" />
-  {% endif %}
+	{% if hm_flag %}
+	  <img src="static/dimages/cedar-rapids-logo.png?version={{ version }}" style="width: 224px;" />
+	{% endif %}
     </div></div>
     <div class="row">
       <p>Eligible</p>
@@ -24,7 +20,7 @@
       </div></div>
     <div class="row">
       <div class="col-md-12"><div style="text-align:center; display:block;">
-  <img src="static/dimages/cost_driver_biometrics_oct6.png?version={{ version }}" />
+	<img src="static/dimages/cost_driver_biometrics_oct6.png?version={{ version }}" />
       </div></div>
     </div>
   </div>
@@ -33,22 +29,8 @@
 {% endblock %}
 {% if hm_flag %}
 {% block loadscript %}
-
-    
-    
-
         $.post('/rpc/1/home/', {'func': 'eligible', 'args': JSON.stringify([])}, function(data) {
-      $("#eligible").html(data);
-
-      console.log(data);
-      data = JSON.parse(data);
-
-      var margin = {top: 70, right: 20, bottom: 20, left: 20},
-        width = 400 - margin.left - margin.right,
-        height = 250 - margin.top - margin.bottom;
-
-      generateBarChart(data, margin, width, height);
-
+          $("#eligible").html(data);
         }).fail(function() {
           $("#eligible").html('Error with eligibility rates');
         }); 
