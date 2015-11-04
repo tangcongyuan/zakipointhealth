@@ -151,3 +151,29 @@ h1,h2,h3,h4,h5,h6 {
 h3 {
     font-size: 20px;
 }
+
+.side-by-side {
+    display: inline-block;
+    float: none;
+}
+
+.div-size {
+    width: 200px;
+    margin-right: 50px;
+    height: 200px;
+    background-color: rgba(0,0,0,0.1);
+}
+
+div.center {
+    text-align: center;
+}
+
+hr {
+    width: 900px;
+}
+
+.div-size-big {
+    width: 400px;
+    height: 400px;
+    background-color: rgba(0,0,0,0.1);
+}

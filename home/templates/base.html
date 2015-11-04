@@ -15,9 +15,9 @@
     <link rel="stylesheet" type="text/css"  href="/static/css/animate.min.css">
 
     <link rel="shortcut icon" type="image/png" href="static/images/favicon-transparent.png"/>
-        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" type="text/css"/>
-        <script src="//code.jquery.com/jquery-1.10.2.js" type="text/javascript"></script>
-        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" type="text/css"/>
+    <script src="//code.jquery.com/jquery-1.10.2.js" type="text/javascript"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js" type="text/javascript"></script>
 
     {% block headopt %}
     {% endblock %}
@@ -72,29 +72,26 @@
 
     {% endblock %}  <!-- endblog 2ndnav -->
 
-
         {% block messages %}
         <!-- messages, hidden for growl to pick up -->
         <div class="container">
         <div class="row hidden">
-          <div class="col-md-10">
+        <div class="col-md-10">
 
-              {% if messages %}
-                {% for message in messages %}
-                  <div class="alert alert-{{ message.tags }}">
-                    {{ message|safe }}
-                  </div>
-                {% endfor %}
-              {% else %}
-                No messages!
-              {% endif %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message|safe }}
+            </div>
+          {% endfor %}
+        {% else %}
+          No messages!
+        {% endif %}
 
           </div>
         </div>
-        </div>
-        {% endblock %}
-
-
+      </div>
+      {% endblock %}
 
     {% block container_content %}
       <div class="container">

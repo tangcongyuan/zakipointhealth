@@ -171,7 +171,7 @@ class RPCMethods:
         logger.info('Expenses of Participating Members by year, %s', answer)
         return answer
 
-    def members_all(self):
+    def members_non_participating(self):
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         collection = db['claims']
@@ -193,7 +193,7 @@ class RPCMethods:
         logger.info('All Members by year, %s', answer)
         return answer
 
-    def expenses_all(self):
+    def expenses_non_participating(self):
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         collection = db['claims']
@@ -238,7 +238,6 @@ class RPCMethods:
                     {"Msubs": {"$in":EngagedStatus['Y']}}    
                 ]
              } ).distinct("UID")
-            engagedMember[y] = db.biometrics.find({"Year":int(y)}).distinct("UID")
 
         answer = {}
         for y in Year:
@@ -274,7 +273,6 @@ class RPCMethods:
                     {"Msubs": {"$in":EngagedStatus['Y']}}    
                 ]
              } ).distinct("UID")
-            engagedMember[y] = db.biometrics.find({"Year":int(y)}).distinct("UID")
 
         answer = {}
         for y in Year:
