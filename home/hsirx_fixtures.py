@@ -36,7 +36,10 @@ co_records = [
      "BMI": [30, 35],
      "hypertension": {'systolic': [90,100], 'diastolic': [140, 160]},
  }, {"Name": "Tilde Inc.",
-     "logo": 
+     "logo": "static/dimages/tilde.png",
+     "Members": "879",
+     "Spend": "$12M",
+ }
 ]
 client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
 db = client[DATABASES['mongo']['NAME']]
@@ -52,21 +55,20 @@ print 'cursoring...'
 claims = db['claims']
 #looped = 0
 #print claims.count()
-cursor = claims.find()
+claims_cursor = claims.find()
 uids = []
-for doc in cursor:
+
+
+biometrics = db['biometrics']
+biometrics_cursor = biometrics.find()
+
+for doc in biometrics_cursor:
     # modify doc ..
     #collection.save(doc)
-    if (doc['UID'] not in uids) and len(uids) < 1:
-        uids.append(doc['UID'])
-        print doc['UID'], doc['Paid']
-    # "_id" : ObjectId("56365f77ff226802639988cb")
     try:
-        amount = float(doc['Paid'])
+        year = int(doc['Year'])
     except:
-        amount = 0.0
-    result = db.claims.update_one({'_id': doc['_id']}, {"$set": { "Paid": amount } })
-#    if looped < 3:
-#        print looped, doc['UID'], doc['Paid']
-#    looped += 1
+        year = 1970
+    result = db.biometrics.update_one({'_id': doc['_id']}, {"$set": { "Year": year } })
+
 

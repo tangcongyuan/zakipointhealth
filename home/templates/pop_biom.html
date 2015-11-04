@@ -2,33 +2,157 @@
 
 {% block container_content %}
   <link rel="stylesheet" type="text/css"  href="/static/css/barchart.css">
+  <link rel="stylesheet" type="text/css"  href="/static/css/pop_biom.css">
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="/static/js/barchart.js"> </script>
   <!-- Please make sure jQuery is also loaded. -->
 
   <div class="container">
   <div class="row">
-
     <div class="col-md-12"><div style="text-align:center; display:block;">
   {% if hm_flag %}
     <img src="static/dimages/cedar-rapids-logo.png?version={{ version }}" style="width: 224px;" />
   {% endif %}
     </div></div>
+    <div class="col-md-12">
+        <h2>Population Health</h2>
+        <h3>How has my population been impacted by health programs over time?</h4>
+    </div>
+  {% if hm_data %}
+
     <div class="row">
       <p>Eligible</p>
-      <div class="col-md-12" id="eligible" style="height: 44px; text-align:center; display:block;">
+      <div class="col-md-12" id="eligible" style="height: 44px; text-align:left; display:block;">
       </div></div>
     <div class="row">
       <p>Participating</p>
-      <div class="col-md-12" id="participating" style="height: 44px; text-align:center; display:block;">
+      <div class="col-md-12" id="participating" style="height: 44px; text-align:left; display:block;">
+      </div></div>
+
+    <div class="row">
+      <p>Members Participating</p>
+      <div class="col-md-12" id="members_participating" style="height: 44px; text-align:left; display:block;">
       </div></div>
     <div class="row">
-      <div class="col-md-12"><div style="text-align:center; display:block;">
-  <img src="static/dimages/cost_driver_biometrics_oct6.png?version={{ version }}" />
+      <p>Expenses Participating</p>
+      <div class="col-md-12" id="expenses_participating" style="height: 44px; text-align:left; display:block;">
       </div></div>
-    </div>
-  </div>
 
+    <div class="row">
+      <p>All Members</p>
+      <div class="col-md-12" id="members_all" style="height: 44px; text-align:left; display:block;">
+      </div></div>
+    <div class="row">
+      <p>All Expenses</p>
+      <div class="col-md-12" id="expenses_all" style="height: 44px; text-align:left; display:block;">
+      </div></div>
+
+    <div class="row">
+      <p>Engaged Members</p>
+      <div class="col-md-12" id="members_engaged" style="height: 44px; text-align:left; display:block;">
+      </div></div>
+    <div class="row">
+      <p>Engaged Expenses</p>
+      <div class="col-md-12" id="expenses_engaged" style="height: 44px; text-align:left; display:block;">
+      </div></div>
+  {% endif %}
+
+        <div id="tabs">
+          <ul>
+            <li><a href="#pi">PROGRAM IMPACT</a></li>
+            <li><a href="#op">OPPORTUNITIES</a></li>
+            <li><a href="#ep">EXPLORE POPULATION</a></li>
+          </ul>
+          <div id="pi">
+              <div class="center">
+                  <h4>POPULATION OVERVIEW</h4> 
+                  <p>Overall participation has increased <b>X%</b> in the last <b>3 years</b></p>
+                    <div id="total_pop" class="side-by-side div-size">
+                       
+                    </div>
+                    <div id="participation_rates" class="side-by-side div-size">
+                      
+                    </div>
+                    <div id="engagement_rates" style="display: inline-block;" class="div-size">
+                      
+                    </div>
+              </div>
+              <hr></hr>
+              <div class="center">
+                  <h4>CHANGES IN COST</h4>
+                  <p>Per member per month cost has decreased by <b>X%</b> over the last <b>3 years</b></p>
+                    <div>
+                        <div id="blank" class="side-by-side div-size" style="visibility: hidden;"></div>
+                        <div id="total_pmpm" class="side-by-side div-size">
+
+                        </div>
+                        <div id="blankm" class="side-by-side div-size" style="visibility: hidden;"></div>
+                    </div>
+                    <div id="non-participant_pmpm" class="side-by-side div-size">
+
+                    </div>
+                    <div id="participant_pmpm" class="side-by-side div-size">
+
+                    </div>
+                    <div id="engaged_pmpm" style="display: inline-block;" class="div-size">
+
+                    </div>
+                   <h4>CHANGES IN UTILIZATION</h4>
+                  <p>Claims activity has moved in a positive direction, with <b>X%</b> of claims now under $500 and <b>Y%</b> over $10K</p>
+                     <div>
+                        <div id="blank" class="side-by-side div-size" style="visibility: hidden;"></div>
+                        <div id="total_population_claims" class="side-by-side div-size">
+                            
+                        </div>
+                        <div id="blankm" class="side-by-side div-size" style="visibility: hidden;"></div>
+                    </div>
+                    <div id="non-participant_claims" class="side-by-side div-size">
+
+                    </div>
+                    <div id="participant_claims" class="side-by-side div-size">
+
+                    </div>
+                    <div id="engaged_claims" style="display: inline-block;" class="div-size">
+
+                    </div>
+              </div>
+              <hr></hr>
+              <div class="center">
+                  <h4>RISK DISTRIBUTION</h4>
+                  <p>High risk population has <b>decreased by NN%</b> over the last <b>3 years</b></p>
+                    <div id="participant_risk" class="side-by-side div-size-big" style="margin-right: 5px;">
+                       
+                    </div>
+                    <div class="div-size-big" style="border-left:medium #CC0000 solid; display: inline-block; width: 1px; margin-right: 5px; background-color: white; opacity: 0.03;"></div>
+                    <div id="engaged_risk" style="display: inline-block;" class="div-size-big">
+                      
+                    </div>
+                  <h4>CHANGES IN RISK</h4>
+                  <p>Engagement resulted in <b>X%</b> of the population moving to a lower risk level in the last <b>3 years</b></p>
+                    <div id="changes_risk_participants" class="side-by-side div-size-big" style="margin-right: 5px;">
+                       
+                    </div>
+                    <div class="div-size-big" style="border-left:medium #CC0000 solid; display: inline-block; width: 1px; margin-right: 5px; background-color: white; opacity: 0.03;"></div>
+                    <div id="changes_risk_engaged" style="display: inline-block;" class="div-size-big">
+                      
+                    </div>
+              </div>
+              <hr></hr>
+              <div class="center">
+                  <h4>IMPROVED BIOMETRICS</h4>
+                  <p>Engagement resulted in improvement for <b>X</b> biometrics:<b>Body Mass Index</b> and <b>Blood Pressure</b></p>
+                    <div>
+                        <div id="bmi_participants" class="side-by-side div-size">
+
+                        </div>
+                        <div id="bmi_engaged" class="side-by-side div-size"></div>
+                    </div>
+                    <div id="blood_press_participants" class="side-by-side div-size">
+
+                    </div>
+                    <div id="blood_press_engaged" class="side-by-side div-size">
+
+                    </div>
 
 {% endblock %}
 {% if hm_flag %}
@@ -57,6 +181,39 @@
           $("#participating").html(data);
         }).fail(function() {
           $("#participating").html('Error with participation rates');
+        });
+
+        $.post('/rpc/1/home/', {'func': 'members_participating', 'args': JSON.stringify([])}, function(data) {
+          $("#members_participating").html(data);
+        }).fail(function() {
+          $("#members_participating").html('Error with members_participating');
+        });
+        $.post('/rpc/1/home/', {'func': 'expenses_participating', 'args': JSON.stringify([])}, function(data) {
+          $("#expenses_participating").html(data);
+        }).fail(function() {
+          $("#expenses_participating").html('Error with expenses_participating');
+        });
+
+        $.post('/rpc/1/home/', {'func': 'members_all', 'args': JSON.stringify([])}, function(data) {
+          $("#members_all").html(data);
+        }).fail(function() {
+          $("#members_all").html('Error with members_all');
+        });
+        $.post('/rpc/1/home/', {'func': 'expenses_all', 'args': JSON.stringify([])}, function(data) {
+          $("#expenses_all").html(data);
+        }).fail(function() {
+          $("#expenses_all").html('Error with expenses_all');
+        });
+
+        $.post('/rpc/1/home/', {'func': 'members_engaged', 'args': JSON.stringify([])}, function(data) {
+          $("#members_engaged").html(data);
+        }).fail(function() {
+          $("#members_engaged").html('Error with members_engaged');
+        });
+        $.post('/rpc/1/home/', {'func': 'expenses_engaged', 'args': JSON.stringify([])}, function(data) {
+          $("#expenses_engaged").html(data);
+        }).fail(function() {
+          $("#expenses_engaged").html('Error with expenses_engaged');
         });
 
 {% endblock %}  <!-- loadscript -->
