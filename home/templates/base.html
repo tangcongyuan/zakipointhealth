@@ -36,7 +36,11 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
+    {% if hm_flag %}
+          <a class="navbar-brand" href="/"><img width="160" height="30" src="/static/images/hsirx_logo.png?version={{ version }}" ></a>
+    {% else %}
           <a class="navbar-brand" href="/"><img width="160" height="30" src="/static/images/logo-blue-transparent.png?version={{ version }}" ></a>
+    {% endif %}
             <ul class="nav">
         </div>
         <div class="navbar-collapse collapse">

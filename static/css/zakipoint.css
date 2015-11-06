@@ -105,8 +105,7 @@ body > .container {
 .with-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > .active > a:hover,
 .with-nav-tabs.panel-default .nav-tabs > li.dropdown .dropdown-menu > .active > a:focus {
     color: #fff;
-    background-color: #555;
-}
+    background-color: #555;}
 
 .centerImage
 {
@@ -128,7 +127,7 @@ display:block;
     width: 200px;
     margin-right: 50px;
     height: 200px;
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(0,0,0,0);
 }
 
 div.center {
@@ -142,7 +141,7 @@ hr {
 .div-size-big {
     width: 400px;
     height: 400px;
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(0,0,0,0);
 }
 
 h1,h2,h3,h4,h5,h6 {
@@ -161,7 +160,7 @@ h3 {
     width: 200px;
     margin-right: 50px;
     height: 200px;
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(0,0,0,0);
 }
 
 div.center {
@@ -175,5 +174,5 @@ hr {
 .div-size-big {
     width: 400px;
     height: 400px;
-    background-color: rgba(0,0,0,0.1);
+    background-color: rgba(0,0,0,0);
 }

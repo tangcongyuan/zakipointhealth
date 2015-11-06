@@ -1,4 +1,8 @@
-function generateBarChart(data, margin, width, height){
+function generateBarChart(loc, data, layout, title){
+  var margin = layout.margin,
+      width  = layout.width,
+      height = layout.height;
+
   var x = d3.scale.ordinal().rangeRoundBands([0, width], .5);
   var y = d3.scale.linear().range([height, 0]);
 
@@ -11,7 +15,7 @@ function generateBarChart(data, margin, width, height){
                 .orient("left")
                 .ticks(10);
 
-  var svg = d3.select("body").append("svg")
+  var svg = d3.select(loc).append("svg")
               .attr("width", width + margin.left + margin.right)
               .attr("height", height + margin.top + margin.bottom)
               .append("g")
@@ -31,7 +35,7 @@ function generateBarChart(data, margin, width, height){
   .call(xAxis)
   .selectAll("text")
   .style("text-anchor", "end")
-  .attr("dx", ".5em")
+  .attr("dx", "1.1em")
 
   var bar = svg.selectAll("bar")
          .data(data)
@@ -39,6 +43,7 @@ function generateBarChart(data, margin, width, height){
 
   bar.append("rect")
      .style("fill", "steelblue")
+     .style("opacity", 0.9)
      .attr("x", function(d) { return x(d.date); })
      .attr("width", x.rangeBand())
      .attr("y", function(d) { return y(d.value); })
@@ -47,12 +52,12 @@ function generateBarChart(data, margin, width, height){
   bar.append("text")
      .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
      .attr("y", 0)
-     .attr("dx", "-.7em")
+     .attr("dx", "-1.2em")
      .attr("dy", "-.3em")
      .text(function(d) { return d.value; });
 
   svg.append("text")
-     .text("Total Population")
+     .text(title)
      .attr("x", width/2)
      .attr("y", 0)
      .attr("dx", "-3.5em")

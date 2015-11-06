@@ -13,10 +13,6 @@
         <img src="static/dimages/cedar-rapids-logo.png?version={{ version }}" style="width: 224px;" />
     {% endif %}
       </div></div>
-    <div class="col-md-12">
-      <h2>Population Health</h2>
-      <h4>How has my population been impacted by health programs over time?</h4>
-    </div>
     {% if hm_data %}
 
     <div class="row">
@@ -27,13 +23,17 @@
       <p>Participating</p>
       <div class="col-md-12" id="participating" style="height: 44px; text-align:left; display:block;"></div>
     </div>
+    <div class="row">
+      <p>Engaged</p>
+      <div class="col-md-12" id="engaged" style="height: 44px; text-align:left; display:block;"></div>
+    </div>
 
     <div class="row">
       <p>Members Participating</p>
       <div class="col-md-12" id="members_participating" style="height: 44px; text-align:left; display:block;"></div>
     </div>
     <div class="row">
-      <p>Expenses Participating</p>
+      <p>Participating Expenses</p>
       <div class="col-md-12" id="expenses_participating" style="height: 44px; text-align:left; display:block;"></div>
     </div>
 
@@ -47,12 +47,17 @@
     </div>
 
     <div class="row">
-      <p>Engaged Members</p>
+      <p>engaged Members</p>
       <div class="col-md-12" id="members_engaged" style="height: 44px; text-align:left; display:block;"></div>
     </div>
     <div class="row">
-      <p>Engaged Expenses</p>
+      <p>engaged Expenses</p>
       <div class="col-md-12" id="expenses_engaged" style="height: 44px; text-align:left; display:block;"></div>
+    </div>
+
+    <div class="row">
+      <p>Figure 3</p>
+      <div class="col-md-12" id="figure3" style="height: 44px; text-align:left; display:block;"></div>
     </div>
   {% endif %}
 
@@ -62,6 +67,12 @@
         <li><a href="#op">OPPORTUNITIES</a></li>
         <li><a href="#ep">EXPLORE POPULATION</a></li>
       </ul>
+      <div class="row">
+	<div class="col-md-12">
+<!--	  <h2>Population Health</h2> -->
+	  <h4>How has my population been impacted by health programs over time?</h4>
+	</div>
+      </div>
       <div id="my-tab-content" class="tab-content">
         <div class="tab-pane active" id="pi">
           <div class="center">
@@ -75,20 +86,24 @@
           <div class="center">
             <h4>CHANGES IN COST</h4>
             <p>Per member per month cost has decreased by <b>X%</b> over the last <b>3 years</b></p>
-            <div>
+            <div> 
+	      <!--
               <div id="blank" class="side-by-side div-size" style="visibility: hidden;"></div>
-                <div id="total_pmpm" class="side-by-side div-size"></div>
-                <div id="blankm" class="side-by-side div-size" style="visibility: hidden;"></div>
-              </div>
+              <div id="total_pmpm" class="side-by-side div-size"></div>
+              <div id="blankm" class="side-by-side div-size" style="visibility: hidden;"></div>
+	      -->
+            </div>
               <div id="non-participant_pmpm" class="side-by-side div-size"></div>
               <div id="participant_pmpm" class="side-by-side div-size"></div>
               <div id="engaged_pmpm" style="display: inline-block;" class="div-size"></div>
               <h4>CHANGES IN UTILIZATION</h4>
               <p>Claims activity has moved in a positive direction, with <b>X%</b> of claims now under $500 and <b>Y%</b> over $10K</p>
-              <div>
+              <div> 
+
                 <div id="blank" class="side-by-side div-size" style="visibility: hidden;"></div>
                 <div id="total_population_claims" class="side-by-side div-size"></div>
                 <div id="blankm" class="side-by-side div-size" style="visibility: hidden;"></div>
+
               </div>
               <div id="non-participant_claims" class="side-by-side div-size"></div>
               <div id="participant_claims" class="side-by-side div-size"></div>
@@ -98,32 +113,53 @@
             <div class="center">
               <h4>RISK DISTRIBUTION</h4>
               <p>High risk population has <b>decreased by NN%</b> over the last <b>3 years</b></p>
-              <div id="participant_risk" class="side-by-side div-size-big" style="margin-right: 5px;"></div>
+              <div id="participant_risk" class="side-by-side div-size-big" style="margin-right: 5px;">
+                <img src="static/dimages/participant_risk.png" />
+	      </div>
               <div class="div-size-big" style="border-left:medium #CC0000 solid; display: inline-block; width: 1px; margin-right: 5px; background-color: white; opacity: 0.03;"></div>
-              <div id="engaged_risk" style="display: inline-block;" class="div-size-big"></div>
+              <div id="engaged_risk" style="display: inline-block;" class="div-size-big">
+                <img src="static/dimages/engaged_risk.png" />
+	      </div>
               <h4>CHANGES IN RISK</h4>
               <p>Engagement resulted in <b>X%</b> of the population moving to a lower risk level in the last <b>3 years</b></p>
-              <div id="changes_risk_participants" class="side-by-side div-size-big" style="margin-right: 5px;"></div>
+              <div id="changes_risk_participants" class="side-by-side div-size-big" style="margin-right: 5px;">
+                <img src="static/dimages/participant_risk_changes.png" />
+              </div>
               <div class="div-size-big" style="border-left:medium #CC0000 solid; display: inline-block; width: 1px; margin-right: 5px; background-color: white; opacity: 0.03;"></div>
-              <div id="changes_risk_engaged" style="display: inline-block;" class="div-size-big"></div>
+              <div id="changes_risk_engaged" style="display: inline-block;" class="div-size-big">
+                <img src="static/dimages/engaged_risk_changes.png" />
+	      </div>
             </div>
             <hr></hr>
             <div class="center">
               <h4>IMPROVED BIOMETRICS</h4>
               <p>Engagement resulted in improvement for <b>X</b> biometrics:<b>Body Mass Index</b> and <b>Blood Pressure</b></p>
               <div>
-                <div id="bmi_participants" class="side-by-side div-size"></div>
-                <div id="bmi_engaged" class="side-by-side div-size"></div>
-              </div><div>
-                <div id="blood_press_participants" class="side-by-side div-size"></div>
-                <div id="blood_press_engaged" class="side-by-side div-size"></div>
+                <div id="bmi_participants" class="side-by-side div-size" style="margin-bottom: 60px;">
+		  <p>BMI for Participants</p>
+                  <img src="static/dimages/bmi_part.png" class="side-by-side div-size"/>
+		</div>
+                <div id="bmi_engaged" class="side-by-side div-size" style="margin-bottom: 60px;">
+		  <p>BMI for Engaged</p>
+                  <img src="static/dimages/bmi_engaged.png" class="side-by-side div-size" />
+		</div>
+              </div>
+	      <div>
+                <div id="blood_press_participants" class="side-by-side div-size">
+		  <p>Blood Pressure for Participants</p>
+                  <img src="static/dimages/hyper_part.png" class="side-by-side div-size" />
+		</div>
+                <div id="blood_press_engaged" class="side-by-side div-size">
+		  <p>Blood Pressure for Engaged</p>
+                  <img src="static/dimages/hyper_engaged.png" class="side-by-side div-size" />
+		</div>
               </div>
             </div>
           </div>
         </div>
         <div class="tab-pane" id="op">
           <h2>Opportunities</h2>
-          <img src="static/dimages/HealthMetrics_Opportunities_v1.png">
+          <img src="static/dimages/HealthMetrics_Opportunities_v2.png">
         </div>
         <div class="tab-pane" id="ep">
           <h2>Explore Populations</h2>
@@ -138,27 +174,228 @@
     $("#pi").show();
     $("#op").hide();
     $("#ep").hide();
+
+    var eligible;
     
       $.post('/rpc/1/home/', {'func': 'eligible', 'args': JSON.stringify([])}, function(data) {
-      $("#eligible").html(data);
+          $("#eligible").html(data);
 
-      console.log(data);
-      data = JSON.parse(data);
+          data = JSON.parse(data);
+          eligible = data;
 
-      var margin = {top: 70, right: 20, bottom: 20, left: 20},
-        width = 400 - margin.left - margin.right,
-        height = 250 - margin.top - margin.bottom;
+          var margin = {top: 50, right: 20, bottom: 20, left: 20},
+            width = 200 - margin.left - margin.right,
+            height = 200 - margin.top - margin.bottom;
 
-      generateBarChart(data, margin, width, height);
+          var loc = "#total_pop";
+          var layout = {};
+              layout.margin = margin,
+              layout.width = width,
+              layout.height = height;
 
+          var title = "Total Population";
+
+          generateBarChart(loc, eligible, layout, title);
         }).fail(function() {
           $("#eligible").html('Error with eligibility rates');
         }); 
 
         $.post('/rpc/1/home/', {'func': 'participating', 'args': JSON.stringify([])}, function(data) {
           $("#participating").html(data);
+
+          console.log(data);
+          
+          var participated = JSON.parse(data);
+          data = eligible;
+
+          var margin = {top: 50, right: 20, bottom: 20, left: 20},
+            width = 200 - margin.left - margin.right,
+            height = 200 - margin.top - margin.bottom;
+
+          var title = "Participated Rates";
+
+          var x = d3.scale.ordinal().rangeRoundBands([0, width], .5);
+          var y = d3.scale.linear().range([height, 0]);
+
+          var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom")
+
+          var yAxis = d3.svg.axis()
+              .scale(y)
+              .orient("left")
+              .ticks(10);
+
+          var svg = d3.select("#participation_rates").append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", 
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+          $.each(participated, function(i, item) {
+            item.date = +item._id;
+            item.value = +item.count;
+            item.rate = Math.floor((item.count/data[i].count) * 100);
+          });
+
+          x.domain(data.map(function(d) { return d.date; }).sort());
+          y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis)
+              .selectAll("text")
+              .style("text-anchor", "end")
+              .attr("dx", ".9em")
+
+          var bar = svg.selectAll("bar")
+              .data(data)
+              .enter()
+
+           bar.append("rect")
+              .style("fill", "grey")
+              .style("opacity", 0.1)
+              .attr("x", function(d) { return x(d.date); })
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.value); })
+              .attr("height", function(d) { return height - y(d.value); });
+
+           svg.append("text")
+              .text(title)
+              .attr("x", width/2)
+              .attr("y", 0)
+              .attr("dx", "-4em")
+              .attr("dy", "-2em");
+
+           x.domain(participated.map(function(d) { return d.date; }).sort());
+
+           participated = participated.sort(function(a, b){
+            if (a._id > b._id) return 1;
+            if (a._id < b._id) return -1;
+            return 0;
+           });
+
+           svg.selectAll("bar")
+              .data(participated)
+              .enter().append("rect")
+              .style("fill", "steelblue")
+              .style("opacity", 0.9)
+              .attr("x", function(d) { return x(d.date); })
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.value); })
+              .attr("height", function(d) { return height - y(d.value); });
+
+           svg.selectAll("bar")
+              .data(participated)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", 0)
+              .attr("dx", "-1em")
+              .attr("dy", "-.3em")
+              .text(function(d) { return d.rate+'%'; });
         }).fail(function() {
           $("#participating").html('Error with participation rates');
+        });
+
+        $.post('/rpc/1/home/', {'func': 'engaged', 'args': JSON.stringify([])}, function(data) {
+          $("#engaged").html(data);
+
+          console.log(data);
+          
+          var engaged = JSON.parse(data);
+          data = eligible;
+
+          var margin = {top: 50, right: 20, bottom: 20, left: 20},
+            width = 200 - margin.left - margin.right,
+            height = 200 - margin.top - margin.bottom;
+
+          var title = "Engaged Rates";
+
+          var x = d3.scale.ordinal().rangeRoundBands([0, width], .5);
+          var y = d3.scale.linear().range([height, 0]);
+
+          var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom")
+
+          var yAxis = d3.svg.axis()
+              .scale(y)
+              .orient("left")
+              .ticks(10);
+
+          var svg = d3.select("#engagement_rates").append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", 
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+          $.each(engaged, function(i, item) {
+            item.date = +item._id;
+            item.value = +item.count;
+            item.rate = Math.floor((item.count/data[i].count) * 100);
+          });
+
+          x.domain(data.map(function(d) { return d.date; }).sort());
+          y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis)
+              .selectAll("text")
+              .style("text-anchor", "end")
+              .attr("dx", ".9em")
+
+          var bar = svg.selectAll("bar")
+              .data(data)
+              .enter()
+
+           bar.append("rect")
+              .style("fill", "grey")
+              .style("opacity", 0.1)
+              .attr("x", function(d) { return x(d.date); })
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.value); })
+              .attr("height", function(d) { return height - y(d.value); });
+
+           svg.append("text")
+              .text(title)
+              .attr("x", width/2)
+              .attr("y", 0)
+              .attr("dx", "-4em")
+              .attr("dy", "-2em");
+
+           x.domain(engaged.map(function(d) { return d.date; }).sort());
+
+           engaged = engaged.sort(function(a, b){
+            if (a._id > b._id) return 1;
+            if (a._id < b._id) return -1;
+            return 0;
+           });
+
+           svg.selectAll("bar")
+              .data(engaged)
+              .enter().append("rect")
+              .style("fill", "steelblue")
+              .style("opacity", 0.9)
+              .attr("x", function(d) { return x(d.date); })
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.value); })
+              .attr("height", function(d) { return height - y(d.value); });
+
+           svg.selectAll("bar")
+              .data(engaged)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", 0)
+              .attr("dx", "-1em")
+              .attr("dy", "-.3em")
+              .text(function(d) { return d.rate+'%'; });
+        }).fail(function() {
+          $("#engaged").html('Error with engaged');
         });
 
         $.post('/rpc/1/home/', {'func': 'members_participating', 'args': JSON.stringify([])}, function(data) {
@@ -168,6 +405,85 @@
         });
         $.post('/rpc/1/home/', {'func': 'expenses_participating', 'args': JSON.stringify([])}, function(data) {
           $("#expenses_participating").html(data);
+
+          data = JSON.parse(data);
+
+          var margin = {top: 50, right: 20, bottom: 20, left: 20},
+            width = 200 - margin.left - margin.right,
+            height = 200 - margin.top - margin.bottom;
+
+          var loc = "#participant_pmpm";
+          var layout = {};
+              layout.margin = margin,
+              layout.width = width,
+              layout.height = height;
+
+          var title = "Participant PMPM";
+
+          var x = d3.scale.ordinal().rangeRoundBands([0, width], .5);
+          var y = d3.scale.linear().range([height, 0]);
+
+          var xAxis = d3.svg.axis()
+                        .scale(x)
+                        .orient("bottom");
+
+          var yAxis = d3.svg.axis()
+                        .scale(y)
+                        .orient("left")
+                        .ticks(10);
+
+          var svg = d3.select(loc).append("svg")
+                      .attr("width", width + margin.left + margin.right)
+                      .attr("height", height + margin.top + margin.bottom)
+                      .append("g")
+                      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          $.each(data, function(i, item) {
+            item.date = +item._id;
+            item.value = Math.floor(+item.dollars);
+          });
+          data = data.sort(function(a, b){
+            if (a._id > b._id) return 1;
+            if (a._id < b._id) return -1;
+            return 0;
+           });
+
+          x.domain(data.map(function(d) { return d.date; }).sort());
+          y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+          svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis)
+          .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "1.1em")
+
+          var bar = svg.selectAll("bar")
+                 .data(data)
+                 .enter()
+
+          bar.append("rect")
+             .style("fill", "steelblue")
+             .style("opacity", 0.9)
+             .attr("x", function(d) { return x(d.date); })
+             .attr("width", x.rangeBand())
+             .attr("y", function(d) { return y(d.value); })
+             .attr("height", function(d) { return height - y(d.value); });
+
+          bar.append("text")
+             .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+             .attr("y", 0)
+             .attr("dx", "-1.2em")
+             .attr("dy", "-.3em")
+             .text(function(d) { return '$'+d.value; });
+
+          svg.append("text")
+             .text(title)
+             .attr("x", width/2)
+             .attr("y", 0)
+             .attr("dx", "-3.5em")
+             .attr("dy", "-2em");
         }).fail(function() {
           $("#expenses_participating").html('Error with expenses_participating');
         });
@@ -177,8 +493,88 @@
         }).fail(function() {
           $("#members_non_participating").html('Error with members_all');
         });
+
         $.post('/rpc/1/home/', {'func': 'expenses_non_participating', 'args': JSON.stringify([])}, function(data) {
           $("#expenses_non_participating").html(data);
+
+          data = JSON.parse(data);
+
+          var margin = {top: 50, right: 20, bottom: 20, left: 20},
+            width = 200 - margin.left - margin.right,
+            height = 200 - margin.top - margin.bottom;
+
+          var loc = "#non-participant_pmpm";
+          var layout = {};
+              layout.margin = margin,
+              layout.width = width,
+              layout.height = height;
+
+          var title = "Non-Participant PMPM";
+
+          var x = d3.scale.ordinal().rangeRoundBands([0, width], .5);
+          var y = d3.scale.linear().range([height, 0]);
+
+          var xAxis = d3.svg.axis()
+                        .scale(x)
+                        .orient("bottom");
+
+          var yAxis = d3.svg.axis()
+                        .scale(y)
+                        .orient("left")
+                        .ticks(10);
+
+          var svg = d3.select(loc).append("svg")
+                      .attr("width", width + margin.left + margin.right)
+                      .attr("height", height + margin.top + margin.bottom)
+                      .append("g")
+                      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          $.each(data, function(i, item) {
+            item.date = +item._id;
+            item.value = Math.floor(+item.dollars);
+          });
+          data = data.sort(function(a, b){
+            if (a._id > b._id) return 1;
+            if (a._id < b._id) return -1;
+            return 0;
+           });
+
+          x.domain(data.map(function(d) { return d.date; }).sort());
+          y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+          svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis)
+          .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "1.1em")
+
+          var bar = svg.selectAll("bar")
+                 .data(data)
+                 .enter()
+
+          bar.append("rect")
+             .style("fill", "steelblue")
+             .style("opacity", 0.9)
+             .attr("x", function(d) { return x(d.date); })
+             .attr("width", x.rangeBand())
+             .attr("y", function(d) { return y(d.value); })
+             .attr("height", function(d) { return height - y(d.value); });
+
+          bar.append("text")
+             .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+             .attr("y", 0)
+             .attr("dx", "-1.2em")
+             .attr("dy", "-.3em")
+             .text(function(d) { return '$'+d.value; });
+
+          svg.append("text")
+             .text(title)
+             .attr("x", width/2)
+             .attr("y", 0)
+             .attr("dx", "-5.3em")
+             .attr("dy", "-2em");
         }).fail(function() {
           $("#expenses_non_participating").html('Error with expenses_all');
         });
@@ -188,10 +584,204 @@
         }).fail(function() {
           $("#members_engaged").html('Error with members_engaged');
         });
+
         $.post('/rpc/1/home/', {'func': 'expenses_engaged', 'args': JSON.stringify([])}, function(data) {
           $("#expenses_engaged").html(data);
+
+          data = JSON.parse(data);
+
+          var margin = {top: 50, right: 20, bottom: 20, left: 20},
+            width = 200 - margin.left - margin.right,
+            height = 200 - margin.top - margin.bottom;
+
+          var loc = "#engaged_pmpm";
+          var layout = {};
+              layout.margin = margin,
+              layout.width = width,
+              layout.height = height;
+
+          var title = "Engaged PMPM";
+
+          var x = d3.scale.ordinal().rangeRoundBands([0, width], .5);
+          var y = d3.scale.linear().range([height, 0]);
+
+          var xAxis = d3.svg.axis()
+                        .scale(x)
+                        .orient("bottom");
+
+          var yAxis = d3.svg.axis()
+                        .scale(y)
+                        .orient("left")
+                        .ticks(10);
+
+          var svg = d3.select(loc).append("svg")
+                      .attr("width", width + margin.left + margin.right)
+                      .attr("height", height + margin.top + margin.bottom)
+                      .append("g")
+                      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          $.each(data, function(i, item) {
+            item.date = +item._id;
+            item.value = Math.floor(+item.dollars);
+          });
+          data = data.sort(function(a, b){
+            if (a._id > b._id) return 1;
+            if (a._id < b._id) return -1;
+            return 0;
+           });
+
+          x.domain(data.map(function(d) { return d.date; }).sort());
+          y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+          svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis)
+          .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "1.1em")
+
+          var bar = svg.selectAll("bar")
+                 .data(data)
+                 .enter()
+
+          bar.append("rect")
+             .style("fill", "steelblue")
+             .style("opacity", 0.9)
+             .attr("x", function(d) { return x(d.date); })
+             .attr("width", x.rangeBand())
+             .attr("y", function(d) { return y(d.value); })
+             .attr("height", function(d) { return height - y(d.value); });
+
+          bar.append("text")
+             .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+             .attr("y", 0)
+             .attr("dx", "-1.2em")
+             .attr("dy", "-.3em")
+             .text(function(d) { return '$'+d.value; });
+
+          svg.append("text")
+             .text(title)
+             .attr("x", width/2)
+             .attr("y", 0)
+             .attr("dx", "-3.0em")
+             .attr("dy", "-2em");
         }).fail(function() {
           $("#expenses_engaged").html('Error with expenses_engaged');
+        });
+
+        $.post('/rpc/1/home/', {'func': 'figure_3', 'args': JSON.stringify([])}, function(data) {
+          $("#figure3").html(data);
+
+          var margin = {top: 70, right: 120, bottom: 20, left: 30},
+              width = 300 - margin.left - margin.right,
+              height = 200 - margin.top - margin.bottom;
+
+          var x = d3.scale.ordinal()
+              .rangeRoundBands([0, width], .5);
+
+          var y = d3.scale.linear()
+              .rangeRound([height, 0]);
+
+          var color = d3.scale.ordinal()
+              .range(["steelblue", "#BDBDBD", "#F78181"]);
+
+          var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom");
+
+          var loc = "#total_population_claims";
+
+          var svg = d3.select(loc).append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          data = JSON.parse(data);
+          color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Year"; }));
+          console.log(data);
+          $.each(data, function(i, d) {
+            var y0 = 0;
+            d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
+            d.total = d.claims[d.claims.length - 1].y1;
+          });
+
+          data = data.sort(function(a, b) { 
+            if (a.Year > b.Year) return 1;
+            if (a.Year < b.Year) return -1;
+            return 0;
+          });
+
+          x.domain(data.map(function(d) { return d.Year; }));
+          y.domain([0, d3.max(data, function(d) { return d.total; })]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis);
+
+          var claims = svg.selectAll("claims")
+              .data(data)
+              .enter().append("g")
+              .attr("class", "g")
+              .attr("transform", function(d) { return "translate(" + x(d.Year) + ",0)"; });
+
+          claims.selectAll("rect")
+              .data(function(d) { return d.claims; })
+            .enter().append("rect")
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.y1); })
+              .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+              .style("opacity", 0.9)
+              .style("fill", function(d) { return color(d.level); });
+
+          var legend = svg.selectAll(".legend")
+              .data(color.domain().slice().reverse())
+              .enter().append("g")
+              .attr("class", "legend")
+              .attr("transform", function(d, i) { return "translate(20," + i * 20 + ")"; });
+
+          legend.append("text")
+              .attr("x", width+80)
+              .attr("y", -50)
+              .attr("dy", "0em")
+              .style("text-anchor", "end")
+              .style("fill", color)
+              .text(function(d) { return 'claims ' + d; });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 20-margin.top; })
+              .attr("fill", "#F78181")
+              .attr("dx", "-0.6em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.over_10k; });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 40-margin.top; })
+              .attr("fill", "#BDBDBD")
+              .attr("dx", "-0.6em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.between; });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 60-margin.top; })
+              .attr("fill", "steelblue")
+              .attr("dx", "-0.6em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.under_500; });
+
+        }).fail(function() {
+          $("#figure3").html('Error with figure_3');
         });
 
 {% endif %}
