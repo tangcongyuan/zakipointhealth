@@ -102,6 +102,7 @@ def notfound(request):
     context = {'session': request.session, 'path': request.path, 'fullname': fullname, 'version': VERSION_STAMP}
     return  render_to_response('404.html', context)
 
+
 import zphalfa.rpc as rpc
 
 EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance',
@@ -109,6 +110,12 @@ EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance',
                     'movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
                'N':['NotRequired','OptOut','Terminated','Missed',
                     'Dismissed','AppealFollowUp']}
+
+RiskMap = {
+    "RiskReduction": "Med",
+    "RiskPrevention": "Low",
+    "ChronicCare": "High",
+}
 
 class RPCMethods:
     def add(self, one, two):
@@ -417,15 +424,15 @@ class RPCMethods:
     def risk_participating(self):
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
-        level=["RiskPrevention","RiskReduction","ChronicCare"]
+        level=RiskMap.keys()
         answer = {}
         for l in level:
             result=db.biometrics.aggregate([
                 {"$match": {"Mstat": l}},
                 { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
             ])
-            answer[l] = list(result)
-            logger.info( "For %s level members:", l, answer[l])
+            answer[RiskMap[l]] = list(result)
+            logger.info( "For %s level members:", RiskMap[l], answer[RiskMap[l]])
         return answer
 
     def risk_engaged(self):
@@ -447,14 +454,14 @@ class RPCMethods:
 
         answer = {}
 
-        level=["RiskPrevention","RiskReduction","ChronicCare"]
+        level=RiskMap.keys()
         for l in level:
             result=db.biometrics.aggregate([
                 {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
                 {"$match": {"Mstat": l}},
                 { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
             ])
-            answer[l] = list(result)
+            answer[RiskMap[l]] = list(result)
         logger.info('risk_engaged answer: %s', answer)
         return answer
 
