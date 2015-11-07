@@ -99,24 +99,42 @@
               <h4>CHANGES IN UTILIZATION</h4>
               <p>Claims activity has moved in a positive direction, with <b>X%</b> of claims now under $500 and <b>Y%</b> over $10K</p>
               <div> 
-
                 <div id="blank" class="side-by-side div-size" style="visibility: hidden;"></div>
-                <div id="total_population_claims" class="side-by-side div-size"></div>
+                <div class="side-by-side div-size">
+		  <div class="figure_title figure_s">Total Population Claims</div>
+		  <div id="total_population_claims"></div>
+		</div>
                 <div id="blankm" class="side-by-side div-size" style="visibility: hidden;"></div>
-
-              </div>
-              <div id="non-participant_claims" class="side-by-side div-size"></div>
-              <div id="participant_claims" class="side-by-side div-size"></div>
-              <div id="engaged_claims" style="display: inline-block;" class="div-size"></div>
+              </div><div>
+              <div id="non_participant_claims_text" class="side-by-side div-size"></div>
+              <div id="participant_claims_text" class="side-by-side div-size"></div>
+              <div id="engaged_claims_text" style="display: inline-block;" class="div-size"></div>
+              </div><div>
+		<div class="side-by-side div-size">
+		  <div class="figure_s figure_title">Non-Participant Claims</div>
+		  <div id="non_participant_claims" ></div>
+		</div>
+		<div class="side-by-side div-size">
+		  <div class="figure_s figure_title">Participant Claims</div>
+		  <div id="participant_claims" ></div>
+		</div>
+		<div style="display: inline-block;" class="div-size">
+		  <div class="figure_s figure_title">Engaged Claims</div>
+		  <div id="engaged_claims" ></div>
+		</div>
+	      </div>
             </div>
             <hr></hr>
             <div class="center">
               <h4>RISK DISTRIBUTION</h4>
               <p>High risk population has <b>decreased by NN%</b> over the last <b>3 years</b></p>
+              <div id="participant_risk_text" class="side-by-side div-size-big" style="margin-right: 5px;">
+	      </div>
+              <div id="engaged_risk_text" style="display: inline-block;" class="div-size-big">
+	      </div>
               <div id="participant_risk" class="side-by-side div-size-big" style="margin-right: 5px;">
                 <img src="static/dimages/participant_risk.png" />
 	      </div>
-              <div class="div-size-big" style="border-left:medium #CC0000 solid; display: inline-block; width: 1px; margin-right: 5px; background-color: white; opacity: 0.03;"></div>
               <div id="engaged_risk" style="display: inline-block;" class="div-size-big">
                 <img src="static/dimages/engaged_risk.png" />
 	      </div>
@@ -177,6 +195,36 @@
 
     var eligible;
     
+      $.post('/rpc/1/home/', {'func': 'non_participant_claims', 'args': JSON.stringify([])}, function(data) {
+          $("#non_participant_claims_text").html(data);
+        }).fail(function() {
+          $("#non_participant_claims_text").html('Error with non_participant_claims');
+        });
+
+      $.post('/rpc/1/home/', {'func': 'participant_claims', 'args': JSON.stringify([])}, function(data) {
+          $("#participant_claims_text").html(data);
+        }).fail(function() {
+          $("participant_claims_text").html('Error with participant_claims');
+        });
+
+      $.post('/rpc/1/home/', {'func': 'engaged_claims', 'args': JSON.stringify([])}, function(data) {
+          $("#engaged_claims_text").html(data);
+        }).fail(function() {
+          $("#engaged_claims_text").html('Error with engaged_claims');
+        });
+
+      $.post('/rpc/1/home/', {'func': 'risk_participating', 'args': JSON.stringify([])}, function(data) {
+          $("#participant_risk_text").html(data);
+        }).fail(function() {
+          $("#participant_risk_text").html('Error with risk_participating');
+        });
+
+      $.post('/rpc/1/home/', {'func': 'risk_engaged', 'args': JSON.stringify([])}, function(data) {
+          $("#engaged_risk_text").html(data);
+        }).fail(function() {
+          $("#engaged_risk_text").html('Error with risk_engaged');
+        });
+
       $.post('/rpc/1/home/', {'func': 'eligible', 'args': JSON.stringify([])}, function(data) {
           $("#eligible").html(data);
 

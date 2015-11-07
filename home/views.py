@@ -104,6 +104,12 @@ def notfound(request):
 
 import zphalfa.rpc as rpc
 
+EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance',
+                    'GraduatetoRP','MedRxActive','GraduateRP','Monthly',
+                    'movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
+               'N':['NotRequired','OptOut','Terminated','Missed',
+                    'Dismissed','AppealFollowUp']}
+
 class RPCMethods:
     def add(self, one, two):
         logger.info('one %s, two %s', one, two)
@@ -152,10 +158,6 @@ class RPCMethods:
 #        answer = [{"count": 146, "_id": "2012"}, {"count": 383, "_id": "2013"}, {"count": 413, "_id": "2014"}, {"count": 449, "_id": "2015"}]
         answer = [{"count": 146, "_id": "2012"}, {"count": 413, "_id": "2014"}, {"count": 449, "_id": "2015"}]
         return answer
-        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance',
-                            'GraduatetoRP','MedRxActive','GraduateRP','Monthly',
-                            'movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
-                       'N':['NotRequired','OptOut','Terminated','Missed','Dismissed','AppealFollowUp']}
         result=collection.aggregate([
             {"$match": {"Msubs": {"$in":EngagedStatus['Y']}}},
             { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
@@ -296,12 +298,6 @@ class RPCMethods:
         collection = db['claims']
 
         #memmbers for each year
-        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance',
-                            'GraduatetoRP','MedRxActive','GraduateRP','Monthly',
-                            'movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
-                       'N':['NotRequired','OptOut','Terminated','Missed',
-                            'Dismissed','AppealFollowUp'],
-        }
         engagedMember={}
         Year=["12","13","14", "15"]
         Year=["12","14","15"]
@@ -333,12 +329,6 @@ class RPCMethods:
         collection = db['claims']
 
         #memmbers for each year
-        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance',
-                            'GraduatetoRP','MedRxActive','GraduateRP','Monthly',
-                            'movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
-                       'N':['NotRequired','OptOut','Terminated','Missed',
-                            'Dismissed','AppealFollowUp'],
-        }
         engagedMember={}
         Year=["12","13","14", "15"]
         Year=["12","14","15"]
@@ -413,10 +403,238 @@ class RPCMethods:
             gt10k[y] = len(list(resultFees))
             logger.info("{Year: %s, Num of Members > 10000: %s}"%(y,len(list(resultFees))))
             # [{"12": 86, "14": 189}, {"12": 269, "14": 462}, {"12": 43, "14": 60}]
-        return [{"Year": "2012", "under_500": 86, "between": 269, "over_10k": 43},
-                {"Year": "2014", "under_500": 189, "between": 462, "over_10k": 60},]
+        ret = []
+        for y in Year:
+            ret.append({
+                "Year": "20"+y,
+                "under_500": lt500[y],
+                "between": between[y],
+                "over_10k": gt10k[y],
+            })
+        logging.info('figure_3 returns %s', ret)
+        return ret
 
-        return (lt500, between, gt10k)
+    def risk_participating(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        level=["RiskPrevention","RiskReduction","ChronicCare"]
+        answer = {}
+        for l in level:
+            result=db.biometrics.aggregate([
+                {"$match": {"Mstat": l}},
+                { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
+            ])
+            answer[l] = list(result)
+            logger.info( "For %s level members:", l, answer[l])
+        return answer
+
+    def risk_engaged(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        engagedMember={}
+        Year=["12","13","14", "15"]
+
+        engCount = {}
+        for y in Year:
+            engagedMember[y]=db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+             } ).distinct("UID")
+            engCount[y] = len(engagedMember[y])
+        logger.info('risk_engaged Engaged risk counts %s', engCount)
+
+        answer = {}
+
+        level=["RiskPrevention","RiskReduction","ChronicCare"]
+        for l in level:
+            result=db.biometrics.aggregate([
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match": {"Mstat": l}},
+                { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
+            ])
+            answer[l] = list(result)
+        logger.info('risk_engaged answer: %s', answer)
+        return answer
+
+    def non_participant_claims(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        claims = db['claims']
+        logger.info( "non-participating Member:")
+        partMember = {}
+        Year=["12","13","14", "15"]
+        Year=["12","14"]
+        for y in Year:
+            partMember[y] = list(db.biometrics.find({"Year":int(y)}).distinct("UID"))
+        logger.info( "Range <= 500:")
+
+        lt500 = {}
+        for y in Year:
+            resultFees = claims.aggregate([
+                {"$match":{"Year":y}},
+                {"$match":{"UID":{"$nin":partMember["%s"%(y)]}}},
+                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
+                {"$match":{"TotalPaid": {"$lt":500}}}
+            ])
+            lt500[y] = len(list(resultFees))
+            logger.info( "{Year: %s, Num of Members < 500: %s}"%(y,lt500[y]))
+
+        between = {}
+        logger.info( "Range [500,10000]:")
+        for y in Year:
+            resultFees = claims.aggregate([
+                {"$match":{"Year":y}},
+                {"$match":{"UID":{"$nin":partMember["%s"%(y)]}}},
+                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
+                {"$match":{"TotalPaid": {"$lt":10000,"$gt":500}}}
+            ])
+            between[y] = len(list(resultFees))
+            logger.info( "{Year: %s, Num of Members in [500,10000]: %s}"%(y,len(list(resultFees))))
+
+        gt10k = {}
+        logger.info( "Range >= 10000:")
+        for y in Year:
+            resultFees = claims.aggregate([
+                {"$match":{"Year":y}},
+                {"$match":{"UID":{"$nin":partMember["%s"%(y)]}}},
+                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
+                {"$match":{"TotalPaid": {"$gt":10000}}}
+            ])
+            gt10k[y] = len(list(resultFees))
+            logger.info( "{Year: %s, Num of Members > 10000: %s}"%(y,len(list(resultFees))))
+        ret = []
+        for y in Year:
+            ret.append({
+                "Year": "20"+y,
+                "under_500": lt500[y],
+                "between": between[y],
+                "over_10k": gt10k[y],
+            })
+        logging.info('non_participant_claims returns %s', ret)
+        return ret
+
+    def participant_claims (self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        claims = db.claims
+        logger.info( "participating Member:")
+        partMember = {}
+        Year=["12","13","14", "15"]
+        Year=["12","14"]
+        for y in Year:
+            partMember[y] = list(db.biometrics.find({"Year":int(y)}).distinct("UID"))
+
+        logger.info( "Range <= 500:")
+        answer = {}
+        lt500 = {}
+        for y in Year:
+            resultFees = claims.aggregate([
+                {"$match":{"Year":y}},
+                {"$match":{"UID":{"$in":partMember["%s"%(y)]}}},
+                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
+                {"$match":{"TotalPaid": {"$lt":500}}}
+            ])
+            lt500[y] = len(list(resultFees))
+            logger.info( "{Year: %s, Num of Members below 500: %s}"%(y,lt500[y]))
+
+        between = {}
+        logger.info( "Range [500,10000]:")
+        for y in Year:
+            resultFees = claims.aggregate([
+                {"$match":{"Year":y}},
+                {"$match":{"UID":{"$in":partMember["%s"%(y)]}}},
+                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
+                {"$match":{"TotalPaid": {"$lt":10000,"$gt":500}}}
+            ])
+            between[y] = len(list(resultFees))
+            logger.info( "{Year: %s, Num of Members in [500,10000]: %s}"%(y,between[y]))
+
+        gt10k = {}
+        logger.info( "Range >= 10000:")
+        for y in Year:
+            resultFees = claims.aggregate([
+                {"$match":{"Year":y}},
+                {"$match":{"UID":{"$in":partMember["%s"%(y)]}}},
+                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
+                {"$match":{"TotalPaid": {"$gt":10000}}}
+            ])
+            gt10k[y] = len(list(resultFees))
+            logger.info( "{Year: %s, Num of Members above 10000: %s}"%(y,gt10k[y]))
+        ret = []
+        for y in Year:
+            ret.append({
+                "Year": "20"+y,
+                "under_500": lt500[y],
+                "between": between[y],
+                "over_10k": gt10k[y],
+            })
+        logging.info('participant_claims returns %s', ret)
+        return ret
+
+    def engaged_claims(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        claims = db.claims
+        logger.info( "engaged Member:")
+        engagedMember={}
+        Year=["12","13","14", "15"]
+        Year=["12","14"]
+
+        for y in Year:
+            engagedMember[y]=list(db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+             } ).distinct("UID"))
+
+        lt500 = {}
+        logger.info( "Range <= 500:")
+        for y in Year:
+            resultFees = claims.aggregate([
+                {"$match":{"Year":y}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
+                {"$match":{"TotalPaid": {"$lt":500}}}
+            ])
+            lt500[y] = len(list(resultFees))
+            logger.info( "{Year: %s, Num of Members below 500: %s}"%(y,lt500[y]))
+
+        between = {}
+        logger.info( "Range [500,10000]:")
+        for y in Year:
+            resultFees = claims.aggregate([
+                {"$match":{"Year":y}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
+                {"$match":{"TotalPaid": {"$lt":10000,"$gt":500}}}
+            ])
+            between[y] = len(list(resultFees))
+            logger.info( "{Year: %s, Num of Members in [500,10000]: %s}"%(y,between[y]))
+
+        gt10k = {}
+        logger.info( "Range >= 10000:")
+        for y in Year:
+            resultFees = claims.aggregate([
+                {"$match":{"Year":y}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
+                {"$match":{"TotalPaid": {"$gt":10000}}}
+            ])
+            gt10k[y] = len(list(resultFees))
+            logger.info( "{Year: %s, Num of Members above 10000: %s}"%(y,len(list(resultFees))))
+        ret = []
+        for y in Year:
+            ret.append({
+                "Year": "20"+y,
+                "under_500": lt500[y],
+                "between": between[y],
+                "over_10k": gt10k[y],
+            })
+        logging.info('engaged_claims returns %s', ret)
+        return ret
 
 def RPCHandler(request):
     logger.info('home.views.RPCHandler')
