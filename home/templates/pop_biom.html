@@ -105,11 +105,15 @@
 		  <div id="total_population_claims"></div>
 		</div>
                 <div id="blankm" class="side-by-side div-size" style="visibility: hidden;"></div>
-              </div><div>
+              </div>
+	      <!--
+	      <div>
               <div id="non_participant_claims_text" class="side-by-side div-size"></div>
               <div id="participant_claims_text" class="side-by-side div-size"></div>
               <div id="engaged_claims_text" style="display: inline-block;" class="div-size"></div>
-              </div><div>
+              </div> 
+	      -->
+	      <div>
 		<div class="side-by-side div-size">
 		  <div class="figure_s figure_title">Non-Participant Claims</div>
 		  <div id="non_participant_claims" ></div>
@@ -128,24 +132,25 @@
             <div class="center">
               <h4>RISK DISTRIBUTION</h4>
               <p>High risk population has <b>decreased by NN%</b> over the last <b>3 years</b></p>
+	      <!--
               <div id="participant_risk_text" class="side-by-side div-size-big" style="margin-right: 5px;">
 	      </div>
               <div id="engaged_risk_text" style="display: inline-block;" class="div-size-big">
 	      </div>
+	      -->
               <div id="participant_risk" class="side-by-side div-size-big" style="margin-right: 5px;">
-		<div class="figure_l figure_title">Participant Risk</div>
+		<!-- <div class="figure_l figure_title">Participant Risk</div> -->
                 <img src="static/dimages/participant_risk.png" />
 	      </div>
               <div id="engaged_risk" style="display: inline-block;" >
-		<div class="figure_l figure_title">Engaged Risk</div>
+		<!-- <div class="figure_l figure_title">Engaged Risk</div> -->
                 <div><img src="static/dimages/engaged_risk.png" /></div>
 	      </div>
               <h4>CHANGES IN RISK</h4>
               <p>Engagement resulted in <b>X%</b> of the population moving to a lower risk level in the last <b>3 years</b></p>
-              <div id="changes_risk_participants" class="side-by-side div-size-big" style="margin-right: 5px;">
+              <div id="changes_risk_participants" class="side-by-side " style="margin-right: 5px;">
                 <img src="static/dimages/participant_risk_changes.png" />
               </div>
-              <div class="div-size-big" style="border-left:medium #CC0000 solid; display: inline-block; width: 1px; margin-right: 5px; background-color: white; opacity: 0.03;"></div>
               <div id="changes_risk_engaged" style="display: inline-block;" class="div-size-big">
                 <img src="static/dimages/engaged_risk_changes.png" />
 	      </div>
@@ -198,33 +203,316 @@
     var eligible;
     
       $.post('/rpc/1/home/', {'func': 'non_participant_claims', 'args': JSON.stringify([])}, function(data) {
-          $("#non_participant_claims_text").html(data);
+          /* $("#non_participant_claims_text").html(data); */
+
+          var margin = {top: 70, right: 120, bottom: 20, left: 30},
+              width = 300 - margin.left - margin.right,
+              height = 200 - margin.top - margin.bottom;
+
+          var x = d3.scale.ordinal()
+              .rangeRoundBands([0, width], .5);
+
+          var y = d3.scale.linear()
+              .rangeRound([height, 0]);
+
+          var color = d3.scale.ordinal()
+              .range(["steelblue", "#BDBDBD", "#F78181"]);
+
+          var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom");
+
+          var loc = "#non_participant_claims";
+
+          var svg = d3.select(loc).append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          data = JSON.parse(data);
+          color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Year"; }));
+
+          $.each(data, function(i, d) {
+            var y0 = 0;
+            d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
+            d.total = d.claims[d.claims.length - 1].y1;
+          });
+
+          data = data.sort(function(a, b) { 
+            if (a.Year > b.Year) return 1;
+            if (a.Year < b.Year) return -1;
+            return 0;
+          });
+
+          x.domain(data.map(function(d) { return d.Year; }));
+          y.domain([0, d3.max(data, function(d) { return d.total; })]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis);
+
+          var claims = svg.selectAll("claims")
+              .data(data)
+              .enter().append("g")
+              .attr("class", "g")
+              .attr("transform", function(d) { return "translate(" + x(d.Year) + ",0)"; });
+
+          claims.selectAll("rect")
+              .data(function(d) { return d.claims; })
+            .enter().append("rect")
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.y1); })
+              .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+              .style("opacity", 0.9)
+              .style("fill", function(d) { return color(d.level); });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 20-margin.top; })
+              .attr("fill", "#F78181")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.over_10k+'%'; });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 40-margin.top; })
+              .attr("fill", "#BDBDBD")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.between+'%'; });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 60-margin.top; })
+              .attr("fill", "steelblue")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.under_500+'%'; });
+
         }).fail(function() {
-          $("#non_participant_claims_text").html('Error with non_participant_claims');
+          /* $("#non_participant_claims_text").html('Error with non_participant_claims'); */
         });
 
       $.post('/rpc/1/home/', {'func': 'participant_claims', 'args': JSON.stringify([])}, function(data) {
+	/*
           $("#participant_claims_text").html(data);
+	*/
+          var margin = {top: 70, right: 120, bottom: 20, left: 30},
+              width = 300 - margin.left - margin.right,
+              height = 200 - margin.top - margin.bottom;
+
+          var x = d3.scale.ordinal()
+              .rangeRoundBands([0, width], .5);
+
+          var y = d3.scale.linear()
+              .rangeRound([height, 0]);
+
+          var color = d3.scale.ordinal()
+              .range(["steelblue", "#BDBDBD", "#F78181"]);
+
+          var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom");
+
+          var loc = "#participant_claims";
+
+          var svg = d3.select(loc).append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          data = JSON.parse(data);
+          color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Year"; }));
+
+          $.each(data, function(i, d) {
+            var y0 = 0;
+            d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
+            d.total = d.claims[d.claims.length - 1].y1;
+          });
+
+          data = data.sort(function(a, b) { 
+            if (a.Year > b.Year) return 1;
+            if (a.Year < b.Year) return -1;
+            return 0;
+          });
+
+          x.domain(data.map(function(d) { return d.Year; }));
+          y.domain([0, d3.max(data, function(d) { return d.total; })]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis);
+
+          var claims = svg.selectAll("claims")
+              .data(data)
+              .enter().append("g")
+              .attr("class", "g")
+              .attr("transform", function(d) { return "translate(" + x(d.Year) + ",0)"; });
+
+          claims.selectAll("rect")
+              .data(function(d) { return d.claims; })
+            .enter().append("rect")
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.y1); })
+              .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+              .style("opacity", 0.9)
+              .style("fill", function(d) { return color(d.level); });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 20-margin.top; })
+              .attr("fill", "#F78181")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.over_10k+'%'; });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 40-margin.top; })
+              .attr("fill", "#BDBDBD")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.between+'%'; });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 60-margin.top; })
+              .attr("fill", "steelblue")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.under_500+'%'; });
+
         }).fail(function() {
-          $("participant_claims_text").html('Error with participant_claims');
+          /* $("participant_claims_text").html('Error with participant_claims'); */
         });
 
       $.post('/rpc/1/home/', {'func': 'engaged_claims', 'args': JSON.stringify([])}, function(data) {
-          $("#engaged_claims_text").html(data);
+          /* $("#engaged_claims_text").html(data); */
+
+          var margin = {top: 70, right: 120, bottom: 20, left: 30},
+              width = 300 - margin.left - margin.right,
+              height = 200 - margin.top - margin.bottom;
+
+          var x = d3.scale.ordinal()
+              .rangeRoundBands([0, width], .5);
+
+          var y = d3.scale.linear()
+              .rangeRound([height, 0]);
+
+          var color = d3.scale.ordinal()
+              .range(["steelblue", "#BDBDBD", "#F78181"]);
+
+          var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom");
+
+          var loc = "#engaged_claims";
+
+          var svg = d3.select(loc).append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          data = JSON.parse(data);
+          color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Year"; }));
+
+          $.each(data, function(i, d) {
+            var y0 = 0;
+            d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
+            d.total = d.claims[d.claims.length - 1].y1;
+          });
+
+          data = data.sort(function(a, b) { 
+            if (a.Year > b.Year) return 1;
+            if (a.Year < b.Year) return -1;
+            return 0;
+          });
+
+          x.domain(data.map(function(d) { return d.Year; }));
+          y.domain([0, d3.max(data, function(d) { return d.total; })]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis);
+
+          var claims = svg.selectAll("claims")
+              .data(data)
+              .enter().append("g")
+              .attr("class", "g")
+              .attr("transform", function(d) { return "translate(" + x(d.Year) + ",0)"; });
+
+          claims.selectAll("rect")
+              .data(function(d) { return d.claims; })
+            .enter().append("rect")
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.y1); })
+              .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+              .style("opacity", 0.9)
+              .style("fill", function(d) { return color(d.level); });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 20-margin.top; })
+              .attr("fill", "#F78181")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.over_10k+'%'; });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 40-margin.top; })
+              .attr("fill", "#BDBDBD")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.between+'%'; });
+
+          svg.selectAll("claims")
+              .data(data)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 60-margin.top; })
+              .attr("fill", "steelblue")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.under_500+'%'; });
+          
         }).fail(function() {
-          $("#engaged_claims_text").html('Error with engaged_claims');
+          /* $("#engaged_claims_text").html('Error with engaged_claims'); */
         });
 
       $.post('/rpc/1/home/', {'func': 'risk_participating', 'args': JSON.stringify([])}, function(data) {
-          $("#participant_risk_text").html(data);
+          /* $("#participant_risk_text").html(data); */
         }).fail(function() {
-          $("#participant_risk_text").html('Error with risk_participating');
+          /* $("#participant_risk_text").html('Error with risk_participating'); */
         });
 
       $.post('/rpc/1/home/', {'func': 'risk_engaged', 'args': JSON.stringify([])}, function(data) {
-          $("#engaged_risk_text").html(data);
+          /* $("#engaged_risk_text").html(data); */
         }).fail(function() {
-          $("#engaged_risk_text").html('Error with risk_engaged');
+          /* $("#engaged_risk_text").html('Error with risk_engaged'); */
         });
 
       $.post('/rpc/1/home/', {'func': 'eligible', 'args': JSON.stringify([])}, function(data) {
@@ -806,9 +1094,9 @@
               .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
               .attr("y", function(d, i) { return 20-margin.top; })
               .attr("fill", "#F78181")
-              .attr("dx", "-0.6em")
+              .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.over_10k; });
+              .text(function(d) { return d.over_10k+'%'; });
 
           svg.selectAll("claims")
               .data(data)
@@ -816,9 +1104,9 @@
               .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
               .attr("y", function(d, i) { return 40-margin.top; })
               .attr("fill", "#BDBDBD")
-              .attr("dx", "-0.6em")
+              .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.between; });
+              .text(function(d) { return d.between+'%'; });
 
           svg.selectAll("claims")
               .data(data)
@@ -826,9 +1114,9 @@
               .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
               .attr("y", function(d, i) { return 60-margin.top; })
               .attr("fill", "steelblue")
-              .attr("dx", "-0.6em")
+              .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.under_500; });
+              .text(function(d) { return d.under_500+'%'; });
 
         }).fail(function() {
           $("#figure3").html('Error with figure_3');

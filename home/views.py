@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+import time
 
 from pymongo import MongoClient
 
@@ -118,11 +119,8 @@ RiskMap = {
 }
 
 class RPCMethods:
-    def add(self, one, two):
-        logger.info('one %s, two %s', one, two)
-        return one+two
-
     def eligible(self):
+        t0 = time.time()
         Year=["2012","2014","2015"]
         answer = [{"_id": yr, "count": 1309} for yr in Year]
         return answer
@@ -136,10 +134,11 @@ class RPCMethods:
             {"$group": {"_id": "$Year", "count": {"$sum": 1}}}
         ]
         answer = list(collection.aggregate(pipeline1))
-        logger.info("eligible member in each year: %s", answer)
+        logger.info("%.2f eligible member in each year: %s", time.time() - t0, answer)
         return answer
 
     def participating(self):
+        t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         collection = db['biometrics']
@@ -157,10 +156,11 @@ class RPCMethods:
         # [{"count": 1309, "_id": "12"}, {"count": 1309, "_id": "13"}, {"count": 1309, "_id": "14"}]
         answer = [{"count": v['count'], "_id":str(v['_id']['Year']+2000)} for v in answer_dict if v['_id']['Year'] != 13]
         
-        logger.info("participating members in each year: %s", answer)
+        logger.info("%.2f participating members in each year: %s", time.time() - t0, answer)
         return answer
 
     def engaged(self):
+        t0 = time.time()
         #engaged members
 #        answer = [{"count": 146, "_id": "2012"}, {"count": 383, "_id": "2013"}, {"count": 413, "_id": "2014"}, {"count": 449, "_id": "2015"}]
         answer = [{"count": 146, "_id": "2012"}, {"count": 413, "_id": "2014"}, {"count": 449, "_id": "2015"}]
@@ -169,10 +169,11 @@ class RPCMethods:
             {"$match": {"Msubs": {"$in":EngagedStatus['Y']}}},
             { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
         ])
-        logger.info('engaged %s', result)
+        logger.info('%.2f engaged %s', time.time() - t0, result)
         return result
 
     def members_participating(self):
+        t0 = time.time()
         answer_dict = self.members_participating_raw()
         # {"13": 258, "12": 398, "15": 0, "14": 706}
         # [{"count": 434, "_id": "2012"}, {"cou...  ]
@@ -180,6 +181,7 @@ class RPCMethods:
         return answer
 
     def members_participating_raw(self):
+        t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         collection = db['claims']
@@ -199,10 +201,11 @@ class RPCMethods:
                 {"$group":{"_id":"$UID", "Num of Member":{"$sum":1}}}
             ])
             answer_dict[y] = len(list(resultMembers))
-        logger.info('All Members by year, %s', answer_dict)
+        logger.info('%.2f All Members by year, %s', time.time() - t0, answer_dict)
         return answer_dict
 
     def expenses_participating(self):
+        t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         collection = db['claims']
@@ -229,7 +232,7 @@ class RPCMethods:
         logger.info('self.members_participating_raw: %s', members)
         answer = [{"_id":str(2000+int(k)), "dollars": round(answer_dict[k][0]["TotalPaid"]/12.0/members[k], 2)} for k in answer_dict.keys() if k != '15']
         
-        logger.info('Participating Member Expenses by year, %s', answer)
+        logger.info('%.2f Participating Member Expenses by year, %s', time.time() - t0, answer)
         return answer
 
     def members_non_participating(self):
@@ -240,6 +243,7 @@ class RPCMethods:
         return answer
 
     def members_non_participating_raw(self):
+        t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         collection = db['claims']
@@ -259,10 +263,11 @@ class RPCMethods:
                 {"$group":{"_id":"$UID", "Num of Member":{"$sum":1}}}
             ])
             answer[y] = len(list(resultMembers))
-        logger.info('All Members by year, %s', answer)
+        logger.info('%.2f All Members by year, %s', time.time() - t0, answer)
         return answer
 
     def expenses_non_participating(self):
+        t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         collection = db['claims']
@@ -287,7 +292,7 @@ class RPCMethods:
         logger.info('self.members_non_participating_raw: %s', members)
         answer = [{"_id":str(2000+int(k)), "dollars": round(answer_dict[k][0]["TotalPaid"]/12.0/members[k], 2)} for k in answer_dict.keys() if k != '15']
         
-        logger.info('Non-Participating Member Expenses by year, %s', answer)
+        logger.info('%.2f Non-Participating Member Expenses by year, %s', time.time() - t0, answer)
         return answer
 
     def members_engaged(self):
@@ -298,6 +303,7 @@ class RPCMethods:
         return answer
 
     def members_engaged_raw(self):
+        t0 = time.time()
 #        answer = 'Engaged Member count by year not ready yet'
 #        return answer
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
@@ -325,10 +331,11 @@ class RPCMethods:
                 {"$group":{"_id":"$UID", "Num of Member":{"$sum":1}}}
             ])
             answer[y] = len(list(resultMembers))
-        logger.info('Engaged Members by year, %s', answer)
+        logger.info('%.2f Engaged Members by year, %s', time.time() - t0, answer)
         return answer
 
     def expenses_engaged(self):
+        t0 = time.time()
 #        answer = 'Engaged Member Expenses by year not ready yet'
 #        return answer
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
@@ -360,11 +367,12 @@ class RPCMethods:
         logger.info('self.members_engaged: %s', members)
         answer = [{"_id":str(2000+int(k)), "dollars": round(answer_dict[k][0]["TotalPaid"]/12.0/members[k], 2)} for k in answer_dict.keys() if k != '15']
         
-        logger.info('Engaged Expenses by year, %s', answer)
+        logger.info('%.2f Engaged Expenses by year, %s', time.time() - t0, answer)
         return answer
 
     def figure_3(self):
         #########Figure 3
+        t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         claims = db['claims']
@@ -412,60 +420,20 @@ class RPCMethods:
             # [{"12": 86, "14": 189}, {"12": 269, "14": 462}, {"12": 43, "14": 60}]
         ret = []
         for y in Year:
+            total = lt500[y] + between[y] + gt10k[y]
+            lo_spenders = round(lt500[y]*100.0/total)
+            hi_spenders = round(gt10k[y]*100.0/total)
             ret.append({
                 "Year": "20"+y,
-                "under_500": lt500[y],
-                "between": between[y],
-                "over_10k": gt10k[y],
+                "under_500": int(lo_spenders),
+                "between": int(100 - lo_spenders - hi_spenders),
+                "over_10k": int(hi_spenders),
             })
-        logging.info('figure_3 returns %s', ret)
+        logging.info('%.2f figure_3 returns %s', time.time() - t0, ret)
         return ret
 
-    def risk_participating(self):
-        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
-        db = client[DATABASES['mongo']['NAME']]
-        level=RiskMap.keys()
-        answer = {}
-        for l in level:
-            result=db.biometrics.aggregate([
-                {"$match": {"Mstat": l}},
-                { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
-            ])
-            answer[RiskMap[l]] = list(result)
-            logger.info( "For %s level members:", RiskMap[l], answer[RiskMap[l]])
-        return answer
-
-    def risk_engaged(self):
-        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
-        db = client[DATABASES['mongo']['NAME']]
-        engagedMember={}
-        Year=["12","13","14", "15"]
-
-        engCount = {}
-        for y in Year:
-            engagedMember[y]=db.biometrics.find(
-                {"$and":[
-                    {"Year":int(y)},
-                    {"Msubs": {"$in":EngagedStatus['Y']}}
-                ]
-             } ).distinct("UID")
-            engCount[y] = len(engagedMember[y])
-        logger.info('risk_engaged Engaged risk counts %s', engCount)
-
-        answer = {}
-
-        level=RiskMap.keys()
-        for l in level:
-            result=db.biometrics.aggregate([
-                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
-                {"$match": {"Mstat": l}},
-                { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
-            ])
-            answer[RiskMap[l]] = list(result)
-        logger.info('risk_engaged answer: %s', answer)
-        return answer
-
     def non_participant_claims(self):
+        t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         claims = db['claims']
@@ -513,16 +481,20 @@ class RPCMethods:
             logger.info( "{Year: %s, Num of Members > 10000: %s}"%(y,len(list(resultFees))))
         ret = []
         for y in Year:
+            total = lt500[y] + between[y] + gt10k[y]
+            lo_spenders = round(lt500[y]*100.0/total)
+            hi_spenders = round(gt10k[y]*100.0/total)
             ret.append({
                 "Year": "20"+y,
-                "under_500": lt500[y],
-                "between": between[y],
-                "over_10k": gt10k[y],
+                "under_500": int(lo_spenders),
+                "between": int(100 - lo_spenders - hi_spenders),
+                "over_10k": int(hi_spenders),
             })
-        logging.info('non_participant_claims returns %s', ret)
+        logging.info('%.2f non_participant_claims returns %s', time.time() - t0, ret)
         return ret
 
     def participant_claims (self):
+        t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         claims = db.claims
@@ -571,16 +543,20 @@ class RPCMethods:
             logger.info( "{Year: %s, Num of Members above 10000: %s}"%(y,gt10k[y]))
         ret = []
         for y in Year:
+            total = lt500[y] + between[y] + gt10k[y]
+            lo_spenders = round(lt500[y]*100.0/total)
+            hi_spenders = round(gt10k[y]*100.0/total)
             ret.append({
                 "Year": "20"+y,
-                "under_500": lt500[y],
-                "between": between[y],
-                "over_10k": gt10k[y],
+                "under_500": int(lo_spenders),
+                "between": int(100 - lo_spenders - hi_spenders),
+                "over_10k": int(hi_spenders),
             })
-        logging.info('participant_claims returns %s', ret)
+        logging.info('%.2f participant_claims returns %s', time.time() - t0, ret)
         return ret
 
     def engaged_claims(self):
+        t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         claims = db.claims
@@ -634,14 +610,63 @@ class RPCMethods:
             logger.info( "{Year: %s, Num of Members above 10000: %s}"%(y,len(list(resultFees))))
         ret = []
         for y in Year:
+            total = lt500[y] + between[y] + gt10k[y]
+            lo_spenders = round(lt500[y]*100.0/total)
+            hi_spenders = round(gt10k[y]*100.0/total)
             ret.append({
                 "Year": "20"+y,
-                "under_500": lt500[y],
-                "between": between[y],
-                "over_10k": gt10k[y],
+                "under_500": int(lo_spenders),
+                "between": int(100 - lo_spenders - hi_spenders),
+                "over_10k": int(hi_spenders),
             })
-        logging.info('engaged_claims returns %s', ret)
+        logging.info('%.2f engaged_claims returns %s', time.time() - t0, ret)
         return ret
+
+    def risk_participating(self):
+        t0 = time.time()
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        level=RiskMap.keys()
+        answer = {}
+        for l in level:
+            result=db.biometrics.aggregate([
+                {"$match": {"Mstat": l}},
+                { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
+            ])
+            answer[RiskMap[l]] = list(result)
+            logger.info( "%.2f For %s level members:", time.time() - t0, RiskMap[l], answer[RiskMap[l]])
+        return answer
+
+    def risk_engaged(self):
+        t0 = time.time()
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        engagedMember={}
+        Year=["12","13","14", "15"]
+
+        engCount = {}
+        for y in Year:
+            engagedMember[y]=db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+             } ).distinct("UID")
+            engCount[y] = len(engagedMember[y])
+        logger.info('risk_engaged Engaged risk counts %s', engCount)
+
+        answer = {}
+
+        level=RiskMap.keys()
+        for l in level:
+            result=db.biometrics.aggregate([
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match": {"Mstat": l}},
+                { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
+            ])
+            answer[RiskMap[l]] = list(result)
+        logger.info('%.2f risk_engaged answer: %s', time.time() - t0, answer)
+        return answer
 
 def RPCHandler(request):
     logger.info('home.views.RPCHandler')
