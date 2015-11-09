@@ -9,9 +9,7 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12"><div style="text-align:center; display:block;">
-    {% if hm_flag %}
-        <img src="static/dimages/cedar-rapids-logo.png?version={{ version }}" style="width: 224px;" />
-    {% endif %}
+        <img src="{{ company_logo }}?version={{ version }}" style="width: 224px;" />
       </div></div>
     {% if hm_data %}
 
@@ -162,21 +160,21 @@
               <div>
                 <div id="bmi_participants" class="side-by-side div-size" style="margin-bottom: 60px;">
 		  <p>BMI for Participants</p>
-                  <img src="static/dimages/bmi_part.png" class="side-by-side div-size"/>
+                  <img src="static/dimages/bmi_part.png" class="side-by-side div-size" style="width: 150px; height:150px;"/>
 		</div>
                 <div id="bmi_engaged" class="side-by-side div-size" style="margin-bottom: 60px;">
 		  <p>BMI for Engaged</p>
-                  <img src="static/dimages/bmi_engaged.png" class="side-by-side div-size" />
+                  <img src="static/dimages/bmi_engaged.png" class="side-by-side div-size" style="width: 150px; height: 150px;" />
 		</div>
               </div>
 	      <div>
                 <div id="blood_press_participants" class="side-by-side div-size">
-		  <p>Blood Pressure for Participants</p>
-                  <img src="static/dimages/hyper_part.png" class="side-by-side div-size" />
+		  <div style="height: 44px;">Blood Pressure for Participants</div>
+                  <img src="static/dimages/hyper_part.png" class="side-by-side div-size" style="width: 150px; height: 150px; margin-bottom: 64px;" />
 		</div>
                 <div id="blood_press_engaged" class="side-by-side div-size">
-		  <p>Blood Pressure for Engaged</p>
-                  <img src="static/dimages/hyper_engaged.png" class="side-by-side div-size" />
+		  <div style="height: 44px;" >Blood Pressure for Engaged</div>
+                  <img src="static/dimages/hyper_engaged.png" class="side-by-side div-size" style="width: 150px; height: 150px; margin-bottom: 64px;" />
 		</div>
               </div>
             </div>
@@ -195,7 +193,6 @@
   </div>
 {% endblock %}
 {% block loadscript %}
-{% if hm_flag %}
     $("#pi").show();
     $("#op").hide();
     $("#ep").hide();
@@ -1122,7 +1119,6 @@
           $("#figure3").html('Error with figure_3');
         });
 
-{% endif %}
 {% endblock %}  <!-- loadscript -->
 {% block pagescript %}
   <script type="text/javascript">

@@ -17,6 +17,9 @@ logging.getLogger().setLevel(logging.DEBUG)
 logger = logging.getLogger('zakipoint')
 logger.setLevel(logging.DEBUG)
 
+companies = ['hsirx', 'affiliatedphysicians']
+
+
 #
 # Session Variables:
 #
@@ -232,6 +235,24 @@ def sign_in_form(request):
 
                 # *** Set up the session
                 request.session['username'] = email
+
+                # zaki logo
+                channel_logo = "static/images/logo-blue-transparent.png"
+                company_logo = "static/dimages/tilde.png"
+#                company_logo = "static/dimages/0916_home_1.png"
+                try:
+                    user_co_domain  = email[email.index('@')+1:]
+                    user_co = co_domain[:co_domain.index('.com')]
+                    if co == 'hsirx':
+                        channel_logo = "static/images/hsirx_logo.png"
+                        company_logo = "static/dimages/cedar-rapids-logo.png"
+                    elif co == 'aphys':
+                        channel_logo = "static/images/affiliated-physicians-logo.jpg"
+                except:
+                    user_co = 'zph'
+                request.session['user_co'] = user_co
+                request.session['channel_logo'] = channel_logo
+                request.session['company_logo'] = company_logo
 
                 # put AppUser in the session
                 request.session['app_user'] = app_user.pk

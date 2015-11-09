@@ -8,11 +8,7 @@
   <div class="row">
 
     <div class="col-md-12"><div style="text-align:center; display:block;">
-	{% if hm_flag %}
-	  <img src="static/dimages/cedar-rapids-logo.png?version={{ version }}" style="width: 224px;" />
-	{% else %}
-	  <img src="static/dimages/0916_home_1.png?version={{ version }}" />
-	{% endif %}
+	<img src="{{ company_logo }}?version={{ version }}" style="width: 224px;" />
     </div></div>
     <div style="text-align:center; display:block;">
       <img src="static/dimages/0911_r2.png?version={{ version }}" />

@@ -19,8 +19,6 @@ logger = logging.getLogger('zakipoint')
 logger.setLevel(logging.DEBUG)
 
 from session import AppUser
-hm_users = ['j.singh@hsirx.com', 'yanpu@hsirx.com', 'eric@hsirx.com', 'heather@hsirx.com']
-hm_data_users = []#['j.singh@hsirx.com', 'yanpu@hsirx.com', 'eric@hsirx.com']
 
 @ensure_csrf_cookie
 def home(request):
@@ -31,10 +29,10 @@ def home(request):
     except (IndexError, KeyError):
         logout(request)  # logut works whether someone is signed in or not. session wiped.
         return redirect('/')
-    hm_flag = True if request.session['username'] in hm_users else False
-    hm_data = True if request.session['username'] in hm_data_users else False
     context = {'session': request.session, 'path': request.path, 'version': VERSION_STAMP,
-               'fullname': fullname, 'hm_flag': hm_flag, 'hm_data': hm_data, }
+               'fullname': fullname, 'channel_logo': request.session['channel_logo'], 
+               'company_logo': request.session['company_logo'],
+    }
     logger.info('home.html context %s', context)
     return  render_to_response('home.html', context)
 
@@ -66,10 +64,10 @@ def pop_biom(request):
         logout(request)  # logout works whether someone is signed in or not. session wiped.
         return redirect('/')
 
-    hm_flag = True if request.session['username'] in hm_users else False
-    hm_data = True if request.session['username'] in hm_data_users else False
     context = {'session': request.session, 'path': request.path, 'version': VERSION_STAMP,
-               'fullname': fullname, 'hm_flag': hm_flag, 'hm_data': hm_data, }
+               'fullname': fullname, 'channel_logo': request.session['channel_logo'], 
+               'company_logo': request.session['company_logo'],
+    }
     return  render_to_response('pop_biom.html', context)
 
 def pop_risk(request):
