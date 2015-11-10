@@ -625,14 +625,31 @@ class RPCMethods:
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         level=RiskMap.keys()
-        answer = {}
+        answer_dict_list = []
+        answer_dict = {}
         for l in level:
             result=db.biometrics.aggregate([
                 {"$match": {"Mstat": l}},
                 { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
             ])
-            answer[RiskMap[l]] = list(result)
-            logger.info( "%.2f For %s level members:", time.time() - t0, RiskMap[l], answer[RiskMap[l]])
+            answer_dict_list.append(l)
+            for item in result:
+                answer_dict_list.append(item)
+            answer_dict[RiskMap[l]] = list(result)
+        answer = []
+
+        for i in range(len(answer_dict_list)):
+            ans1={}
+            if(i<4):
+                ans1["Year"]="20"+str(answer_dict_list[i+1]['_id'])
+                total=float(answer_dict_list[i+ 1]['count']+answer_dict_list[i+ 6]['count']+answer_dict_list[i+11]['count'])
+                ans1[RiskMap[answer_dict_list[ 0]]]=int(round(answer_dict_list[i+ 1]['count']/total*100, 0))
+                ans1[RiskMap[answer_dict_list[ 5]]]=int(100-round(answer_dict_list[i+ 1]['count']/total*100, 0)-round(answer_dict_list[i+11]['count']/total*100, 0))
+                ans1[RiskMap[answer_dict_list[10]]]=int(round(answer_dict_list[i+11]['count']/total*100, 0))
+            else: 
+                break
+            answer.append(ans1)
+        logger.info('%.2f risk_participating returning %s', time.time()-t0, answer)
         return answer
 
     def risk_engaged(self):
@@ -641,7 +658,7 @@ class RPCMethods:
         db = client[DATABASES['mongo']['NAME']]
         engagedMember={}
         Year=["12","13","14", "15"]
-
+        answer_dict_list = []
         engCount = {}
         for y in Year:
             engagedMember[y]=db.biometrics.find(
@@ -653,7 +670,7 @@ class RPCMethods:
             engCount[y] = len(engagedMember[y])
         logger.info('risk_engaged Engaged risk counts %s', engCount)
 
-        answer = {}
+        answer = []
 
         level=RiskMap.keys()
         for l in level:
@@ -662,8 +679,150 @@ class RPCMethods:
                 {"$match": {"Mstat": l}},
                 { "$group": {"_id": "$Year", "count": {"$sum": 1}}}
             ])
-            answer[RiskMap[l]] = list(result)
+            answer_dict_list.append(l)
+            for item in result:
+                answer_dict_list.append(item)
+        for i in range(len(answer_dict_list)):
+            ans1={}
+            if(i<4):
+                ans1["Year"]="20"+str(answer_dict_list[i+1]['_id'])
+                total=float(answer_dict_list[i+ 1]['count']+answer_dict_list[i+ 6]['count']+answer_dict_list[i+11]['count'])
+                ans1[RiskMap[answer_dict_list[ 0]]]=int(round(answer_dict_list[i+ 1]['count']/total*100, 0))
+                ans1[RiskMap[answer_dict_list[ 5]]]=int(100-round(answer_dict_list[i+ 1]['count']/total*100, 0)-round(answer_dict_list[i+11]['count']/total*100, 0))
+                ans1[RiskMap[answer_dict_list[10]]]=int(round(answer_dict_list[i+11]['count']/total*100, 0))
+            else: 
+                break
+            answer.append(ans1)
         logger.info('%.2f risk_engaged answer: %s', time.time() - t0, answer)
+        return answer
+
+    def risk_participating_changes(self):
+        t0 = time.time()
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        '''
+        chronicCare: high
+        riskReduction: medium
+        riskPrevention: low
+        '''
+        print "high:chronicCare"
+        print "medium:riskReduction"
+        print "low:riskPrevention"
+        level=["RiskPrevention","RiskReduction","ChronicCare"]
+        Year=['12','13','14','15']
+        period=['12-13','13-14','14-15']
+        groupHigh = {}
+        groupMe = {}
+        groupLow = {}
+        interResult = {}
+        finalResult = []
+        for l in level:
+            result=db.bio.aggregate([
+                {"$match": {"Mstat": l}}, 
+                { "$group": {"_id": {"Year":"$Year","UID":"$UID","Risk":"$Mstat"}}}
+            ])
+    
+            i=0
+            for document in result:   
+                for y in Year:
+                    if (document["_id"]["Year"]==int(y)): 
+                        interResult.setdefault(y,[]).append(document['_id']['UID'])
+        for y in Year:
+            if(l=="ChronicCare"):
+                groupHigh[y]=interResult[y]
+            elif(l=="RiskReduction"):
+                groupMe[y]=interResult[y]
+            else:
+                groupLow[y]=interResult[y]
+        interResult={}
+        # corresponding level mapping, like high to high
+        for item in period:
+            print "period %s:"%item
+            print "corresponding level mapping, like high to high:"
+            print "[high, medium, low]"
+            print len(set(groupHigh[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
+            print len(set(groupMe[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
+            print len(set(groupLow[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
+            # Uncorresponding level mapping, like high to medium
+            print
+            print "[high to me, high to low]"
+            print len(set(groupHigh[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
+            print len(set(groupHigh[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
+            print "[medium to low, medium to high]"
+            print len(set(groupMe[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
+            print len(set(groupMe[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
+            print "[low to me, low to high]"
+            print len(set(groupLow[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
+            print len(set(groupLow[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
+        return answer
+
+    def risk_engaged_changes(self):
+        t0 = time.time()
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        #Graph Risk Engaged
+        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance','GraduatetoRP','MedRxActive','GraduateRP','Monthly','movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
+                       'N':['NotRequired','OptOut','Terminated','Missed','Dismissed','AppealFollowUp']}
+        level=["RiskPrevention","RiskReduction","ChronicCare"]
+        Year=['12','13','14','15']
+        period=['12-13','13-14','14-15']
+        groupHigh = {}
+        groupMe = {}
+        groupLow = {}
+        interResult = {}
+        finalResult = []
+        engagedMember={}
+
+
+        for y in Year:
+            engagedMember[y]=db.bio.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+             } ).distinct("UID")
+        for l in level:
+            result=db.bio.aggregate([
+                {"$match": {"Mstat": l}}, 
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+
+                { "$group": {"_id": {"Year":"$Year","UID":"$UID","Risk":"$Mstat"}}}
+            ])
+    
+        i=0
+        for document in result:   
+            for y in Year:
+                if (document["_id"]["Year"]==int(y)): 
+                    interResult.setdefault(y,[]).append(document['_id']['UID'])
+            for y in Year:
+                if(l=="ChronicCare"):
+                    groupHigh[y]=interResult[y]
+                
+                elif(l=="RiskReduction"):
+                    groupMe[y]=interResult[y]
+                
+                else:
+                    groupLow[y]=interResult[y]
+        interResult={}
+        # corresponding level mapping, like high to high
+        for item in period:
+            print "period %s:"%item
+            print "corresponding level mapping, like high to high:"
+            print "[high, medium, low]"
+            print len(set(groupHigh[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
+            print len(set(groupMe[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
+            print len(set(groupLow[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
+            # Uncorresponding level mapping, like high to medium
+            print
+            print "[high to me, high to low]"
+            print len(set(groupHigh[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
+            print len(set(groupHigh[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
+            print "[medium to low, medium to high]"
+            print len(set(groupMe[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
+            print len(set(groupMe[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
+            print "[low to me, low to high]"
+            print len(set(groupLow[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
+            print len(set(groupLow[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
         return answer
 
 def RPCHandler(request):

@@ -3,6 +3,7 @@
 #   python manage.py shell < hsirx_fixtures.py > /dev/null
 #
 
+import pdb
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.contrib.auth.models import User, Group
@@ -62,13 +63,31 @@ uids = []
 biometrics = db['biometrics']
 biometrics_cursor = biometrics.find()
 
+engaged_values = ['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance',
+                   'GraduatetoRP','MedRxActive','GraduateRP','Monthly',
+                   'movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD']
+
 for doc in biometrics_cursor:
     # modify doc ..
     #collection.save(doc)
+    pdb.set_trace()
     try:
         year = int(doc['Year'])
     except:
         year = 1970
-    result = db.biometrics.update_one({'_id': doc['_id']}, {"$set": { "Year": year } })
+
+
+#    if doc['HRAStat'] in ['Primary']:
+#        participatingYN = 'Y'
+#    else: 
+#        participatingYN = 'N'
+
+#    if doc['Msubs'] in engaged_values:
+#        engagedYN = 'Y'
+#    else: engagedYN = 'N'
+
+#    set_values = {"$set": { "Year": year, 'CoGroup': 'City of Cedar Rapids', 'Participating': participatingYN, 'Engaged': engagedYN}, }
+
+#    result = db.biometrics.update_one({'_id': doc['_id']}, set_values )
 
 
