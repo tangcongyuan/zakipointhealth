@@ -197,7 +197,7 @@
 
     var eligible;
     
-      $.post('/rpc/1/home/', {'func': 'non_participant_claims', 'args': JSON.stringify([])}, function(data) {
+      $.post('/rpc/1/healthmetrics/', {'func': 'non_participant_claims', 'args': JSON.stringify([])}, function(data) {
           /* $("#non_participant_claims_text").html(data); */
 
           var margin = {top: 70, right: 120, bottom: 20, left: 30},
@@ -297,7 +297,7 @@
           /* $("#non_participant_claims_text").html('Error with non_participant_claims'); */
         });
 
-      $.post('/rpc/1/home/', {'func': 'participant_claims', 'args': JSON.stringify([])}, function(data) {
+      $.post('/rpc/1/healthmetrics/', {'func': 'participant_claims', 'args': JSON.stringify([])}, function(data) {
 	/*
           $("#participant_claims_text").html(data);
 	*/
@@ -398,7 +398,7 @@
           /* $("participant_claims_text").html('Error with participant_claims'); */
         });
 
-      $.post('/rpc/1/home/', {'func': 'engaged_claims', 'args': JSON.stringify([])}, function(data) {
+      $.post('/rpc/1/healthmetrics/', {'func': 'engaged_claims', 'args': JSON.stringify([])}, function(data) {
           /* $("#engaged_claims_text").html(data); */
 
           var margin = {top: 70, right: 120, bottom: 20, left: 30},
@@ -498,7 +498,7 @@
           /* $("#engaged_claims_text").html('Error with engaged_claims'); */
         });
 
-      $.post('/rpc/1/home/', {'func': 'risk_participating', 'args': JSON.stringify([])}, function(data) {
+      $.post('/rpc/1/healthmetrics/', {'func': 'risk_participating', 'args': JSON.stringify([])}, function(data) {
           /* $("#participant_risk_text").html(data); */
 
           var title = "Participant Risk";
@@ -624,7 +624,7 @@
           /* $("#participant_risk_text").html('Error with risk_participating'); */
         });
 
-      $.post('/rpc/1/home/', {'func': 'risk_engaged', 'args': JSON.stringify([])}, function(data) {
+      $.post('/rpc/1/healthmetrics/', {'func': 'risk_engaged', 'args': JSON.stringify([])}, function(data) {
           /* $("#engaged_risk_text").html(data); */
 
           console.log(data);
@@ -752,7 +752,7 @@
           /* $("#engaged_risk_text").html('Error with risk_engaged'); */
         });
 
-      $.post('/rpc/1/home/', {'func': 'eligible', 'args': JSON.stringify([])}, function(data) {
+      $.post('/rpc/1/healthmetrics/', {'func': 'eligible', 'args': JSON.stringify([])}, function(data) {
           $("#eligible").html(data);
 
           data = JSON.parse(data);
@@ -775,7 +775,7 @@
           $("#eligible").html('Error with eligibility rates');
         }); 
 
-        $.post('/rpc/1/home/', {'func': 'participating', 'args': JSON.stringify([])}, function(data) {
+        $.post('/rpc/1/healthmetrics/', {'func': 'participating', 'args': JSON.stringify([])}, function(data) {
           $("#participating").html(data);
           
           var participated = JSON.parse(data);
@@ -872,7 +872,7 @@
           $("#participating").html('Error with participation rates');
         });
 
-        $.post('/rpc/1/home/', {'func': 'engaged', 'args': JSON.stringify([])}, function(data) {
+        $.post('/rpc/1/healthmetrics/', {'func': 'engaged', 'args': JSON.stringify([])}, function(data) {
           $("#engaged").html(data);
           
           var engaged = JSON.parse(data);
@@ -969,12 +969,12 @@
           $("#engaged").html('Error with engaged');
         });
 
-        $.post('/rpc/1/home/', {'func': 'members_participating', 'args': JSON.stringify([])}, function(data) {
+        $.post('/rpc/1/healthmetrics/', {'func': 'members_participating', 'args': JSON.stringify([])}, function(data) {
           $("#members_participating").html(data);
         }).fail(function() {
           $("#members_participating").html('Error with members_participating');
         });
-        $.post('/rpc/1/home/', {'func': 'expenses_participating', 'args': JSON.stringify([])}, function(data) {
+        $.post('/rpc/1/healthmetrics/', {'func': 'expenses_participating', 'args': JSON.stringify([])}, function(data) {
           $("#expenses_participating").html(data);
 
           data = JSON.parse(data);
@@ -1059,13 +1059,13 @@
           $("#expenses_participating").html('Error with expenses_participating');
         });
 
-        $.post('/rpc/1/home/', {'func': 'members_non_participating', 'args': JSON.stringify([])}, function(data) {
+        $.post('/rpc/1/healthmetrics/', {'func': 'members_non_participating', 'args': JSON.stringify([])}, function(data) {
           $("#members_non_participating").html(data);
         }).fail(function() {
           $("#members_non_participating").html('Error with members_all');
         });
 
-        $.post('/rpc/1/home/', {'func': 'expenses_non_participating', 'args': JSON.stringify([])}, function(data) {
+        $.post('/rpc/1/healthmetrics/', {'func': 'expenses_non_participating', 'args': JSON.stringify([])}, function(data) {
           $("#expenses_non_participating").html(data);
 
           data = JSON.parse(data);
@@ -1150,13 +1150,13 @@
           $("#expenses_non_participating").html('Error with expenses_all');
         });
 
-        $.post('/rpc/1/home/', {'func': 'members_engaged', 'args': JSON.stringify([])}, function(data) {
+        $.post('/rpc/1/healthmetrics/', {'func': 'members_engaged', 'args': JSON.stringify([])}, function(data) {
           $("#members_engaged").html(data);
         }).fail(function() {
           $("#members_engaged").html('Error with members_engaged');
         });
 
-        $.post('/rpc/1/home/', {'func': 'expenses_engaged', 'args': JSON.stringify([])}, function(data) {
+        $.post('/rpc/1/healthmetrics/', {'func': 'expenses_engaged', 'args': JSON.stringify([])}, function(data) {
           $("#expenses_engaged").html(data);
 
           data = JSON.parse(data);
@@ -1241,7 +1241,7 @@
           $("#expenses_engaged").html('Error with expenses_engaged');
         });
 
-        $.post('/rpc/1/home/', {'func': 'figure_3', 'args': JSON.stringify([])}, function(data) {
+        $.post('/rpc/1/healthmetrics/', {'func': 'figure_3', 'args': JSON.stringify([])}, function(data) {
           $("#figure3").html(data);
 
           var margin = {top: 70, right: 120, bottom: 20, left: 30},

@@ -19,7 +19,7 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'home.session.splash', name='splash'),
-    url(r'^rpc/1/home/$', 'home.views.RPCHandler', name='rpc'),
+    url(r'^rpc/1/healthmetrics/$', 'home.healthmetrics.RPCHandler', name='rpc'),
     #url(r'^$', 'home.views.home', name='home'),
     url(r'^home$', 'home.views.home', name='home'),
     url(r'^narrow_network$', 'home.views.narrow_network', name='narrow_network'),
