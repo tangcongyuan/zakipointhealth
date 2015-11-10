@@ -68,11 +68,11 @@
       <div class="row">
 	<div class="col-md-12">
 <!--	  <h2>Population Health</h2> -->
-	  <h4>How has my population been impacted by health programs over time?</h4>
 	</div>
       </div>
       <div id="my-tab-content" class="tab-content">
         <div class="tab-pane active" id="pi">
+        <h4>How has my population been impacted by health programs over time?</h4>
           <div class="center">
             <h4>POPULATION OVERVIEW</h4> 
             <p>Overall participation has increased <b>X%</b> in the last <b>3 years</b></p>
@@ -145,10 +145,10 @@
               <h4>CHANGES IN RISK</h4>
               <p>Engagement resulted in <b>X%</b> of the population moving to a lower risk level in the last <b>3 years</b></p>
               <div id="changes_risk_participants" class="side-by-side " style="margin-right: 5px;">
-                <img src="static/dimages/participant_risk_changes.png" />
+                <img src="static/dimages/participant_risk_changes.png?version={{ version }}" />
               </div>
               <div id="changes_risk_engaged" style="display: inline-block;" class="div-size-big">
-                <img src="static/dimages/engaged_risk_changes.png" />
+                <img src="static/dimages/engaged_risk_changes.png?version={{ version }}" />
 	      </div>
             </div>
             <hr></hr>
@@ -158,21 +158,21 @@
               <div>
                 <div id="bmi_participants" class="side-by-side div-size" style="margin-bottom: 60px;">
 		  <p>BMI for Participants</p>
-                  <img src="static/dimages/bmi_part.png" class="side-by-side div-size" style="width: 150px; height:150px;"/>
+                  <img src="static/dimages/bmi_part.png?version={{ version }}" class="side-by-side div-size" style="width: 150px; height:150px;"/>
 		</div>
                 <div id="bmi_engaged" class="side-by-side div-size" style="margin-bottom: 60px;">
 		  <p>BMI for Engaged</p>
-                  <img src="static/dimages/bmi_engaged.png" class="side-by-side div-size" style="width: 150px; height: 150px;" />
+                  <img src="static/dimages/bmi_engaged.png?version={{ version }}" class="side-by-side div-size" style="width: 150px; height: 150px;" />
 		</div>
               </div>
 	      <div>
                 <div id="blood_press_participants" class="side-by-side div-size">
 		  <div style="height: 44px;">Blood Pressure for Participants</div>
-                  <img src="static/dimages/hyper_part.png" class="side-by-side div-size" style="width: 150px; height: 150px; margin-bottom: 64px;" />
+                  <img src="static/dimages/hyper_part.png?version={{ version }}" class="side-by-side div-size" style="width: 150px; height: 150px; margin-bottom: 64px;" />
 		</div>
                 <div id="blood_press_engaged" class="side-by-side div-size">
 		  <div style="height: 44px;" >Blood Pressure for Engaged</div>
-                  <img src="static/dimages/hyper_engaged.png" class="side-by-side div-size" style="width: 150px; height: 150px; margin-bottom: 64px;" />
+                  <img src="static/dimages/hyper_engaged.png?version={{ version }}" class="side-by-side div-size" style="width: 150px; height: 150px; margin-bottom: 64px;" />
 		</div>
               </div>
             </div>
@@ -180,11 +180,11 @@
         </div>
         <div class="tab-pane" id="op">
           <h2>Opportunities</h2>
-          <img src="static/dimages/HealthMetrics_Opportunities_v2.png">
+          <img src="static/dimages/HealthMetrics_Opportunities_v2.png?version={{ version }}">
         </div>
         <div class="tab-pane" id="ep">
           <h2>Explore Populations</h2>
-          <img src="static/dimages/Population_Exploration_v2.png">
+          <img src="static/dimages/ExplorePopNew.png?version={{ version }}" style="margin-left: 144px; width: 800px;">
         </div>
       </div>
     </div>
