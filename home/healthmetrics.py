@@ -33,6 +33,68 @@ RiskMap = {
     "ChronicCare": "High",
 }
 
+def participating_member_uids(db, Year):
+    member_uids = {}
+    for y in Year:
+        member_uids[y] = db.biometrics.find({"Year":int(y)}).distinct("UID")
+    logger.info('participating_member_uids %s', [{'y': y, 'count': len(member_uids[y])} for y in Year])
+    return member_uids
+
+def engaged_member_uids(db, Year):
+    member_uids={}
+    for y in Year:
+        member_uids[y]=db.biometrics.find(
+            {"$and":[
+                {"Year":int(y)},
+                {"Msubs": {"$in":EngagedStatus['Y']}}
+            ]
+         } ).distinct("UID")
+    logger.info('engaged_member_uids %s', [{'y': y, 'count': len(member_uids[y])} for y in Year])
+    return member_uids
+
+def member_count(mongodb, member_uids, including=True):
+    in_or_nin = '$in' if including else '$nin'
+    logger.info('member_count %s', member_uids.keys())
+    answer = {}
+    for y in member_uids.keys():
+        logger.info('loop begins %s, %s %s', in_or_nin, y, len(member_uids[y]))
+        resultMembers = mongodb['claims'].aggregate([
+            {"$match":{"Year":y}},
+            {"$match":{"UID":{in_or_nin:member_uids[y]}}},
+            {"$group":{"_id":"$UID", "Num of Member":{"$sum":1}}}
+        ])
+        answer[y] = len(list(resultMembers))
+    logger.info('member_count %s', answer)
+    return answer
+
+def expense_totals(db, member_uids, including=True):
+    in_or_nin = '$in' if including else '$nin'
+    answer = {}
+    for y in member_uids.keys():
+        totalPaid = db.claims.aggregate([
+            {"$match":{"Year":y}},
+            {"$match":{"UID":{in_or_nin:member_uids[y]}}},
+            {"$group":{"_id":str(y), "TotalPaid":{"$sum":"$Paid"}}},
+        ])
+        answer[y] = list(totalPaid)
+    logger.info('expense_totals %s', answer)
+    return answer
+
+def member_count_having(db, member_uids, condition, including=True):
+    in_or_nin = '$in' if including else '$nin'
+    answer = {}
+    for y in member_uids.keys():
+        conds = [
+            {"$match":{"Year":y}},
+            {"$match":{"UID":{in_or_nin:member_uids[y]}}},
+            {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
+        ] + [condition]
+        logger.info('conditions = %s', conds[0:1]+conds[2:4])
+        totalPaid = db.claims.aggregate(conds)
+        answer[y] = len(list(totalPaid))
+    logger.info('member_count_having %s = %s', condition, answer)
+    return answer
+
 class RPCMethods:
     def eligible(self):
         t0 = time.time()
@@ -99,61 +161,34 @@ class RPCMethods:
         t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
-        collection = db['claims']
 
-        #memmbers for each year
         Year=["12","14","15"]
-        partMember = {}
-        for y in Year:
-            partMember[y] = db.biometrics.find({"Year":int(y)}).distinct("UID")
-
-        answer_dict = {}
-        for y in Year:
-            resultMembers = collection.aggregate([
-                {"$match":{"Year": y}},
-                # {"$match":{"IncDate":{"$regex":"%s$"%(y)}}},
-                {"$match":{"UID":{"$in":partMember["%s"%(y)]}}},
-                {"$group":{"_id":"$UID", "Num of Member":{"$sum":1}}}
-            ])
-            answer_dict[y] = len(list(resultMembers))
-        logger.info('%.2f All Members by year, %s', time.time() - t0, answer_dict)
+        partMember = participating_member_uids(db, Year)
+        answer_dict = member_count(db, partMember)
+        logger.info('%.2f members_participating_raw, %s', time.time() - t0, answer_dict)
         return answer_dict
 
     def expenses_participating(self):
         t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
-        collection = db['claims']
 
         #expenses for each year
         Year=["12","13","14", "15"]
         Year=["12","14","15"]
-        partMember = {}
-        for y in Year:
-            partMember[y] = db.biometrics.find({"Year":int(y)}).distinct("UID")
+        partMember = participating_member_uids(db, Year)
 
-        answer_dict = {}
-        for y in Year:
-            resultFees = collection.aggregate([
-                {"$match":{"Year": y}},
-                # {"$match":{"IncDate":{"$regex":"%s$"%(y)}}},
-                {"$match":{"UID":{"$in":partMember["%s"%(y)]}}},
-                {"$group":{"_id":"%s"%(y), "TotalPaid":{"$sum":"$Paid"}}}
-            ])
-            answer_dict[y] = list(resultFees)
-        # {"13": [{"TotalPaid": 197142.51000000024, "_id": "13"}], "12": [{"TotalPaid": 1754748.4399999501, "_id": "12"}], "15": [], "14": [{"TotalPaid": 3112128.1199999745, "_id": "14"}]}
+        answer_dict = expense_totals(db, partMember)
 
         members = self.members_participating_raw()
         logger.info('self.members_participating_raw: %s', members)
         answer = [{"_id":str(2000+int(k)), "dollars": round(answer_dict[k][0]["TotalPaid"]/12.0/members[k], 2)} for k in answer_dict.keys() if k != '15']
         
-        logger.info('%.2f Participating Member Expenses by year, %s', time.time() - t0, answer)
+        logger.info('%.2f expenses_participating, %s', time.time() - t0, answer)
         return answer
 
     def members_non_participating(self):
         answer_dict = self.members_non_participating_raw()
-        # {"13": 258, "12": 398, "15": 0, "14": 706}
-        # [{"count": 434, "_id": "2012"}, {"cou...  ]
         answer = [{"_id": str(2000+int(k)), "count":answer_dict[k]} for k in answer_dict.keys() if k != '15']
         return answer
 
@@ -161,25 +196,12 @@ class RPCMethods:
         t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
-        collection = db['claims']
 
-        #memmbers for each year
-        Year=["12","13","14", "15"]
-        partMember = {}
-        for y in Year:
-            partMember[y] = db.biometrics.find({"Year":int(y)}).distinct("UID")
-
-        answer = {}
-        for y in Year:
-            resultMembers = collection.aggregate([
-                {"$match":{"Year": y}},
-                # {"$match":{"IncDate":{"$regex":"%s$"%(y)}}},
-                {"$match":{"UID":{"$nin":partMember["%s"%(y)]}}},
-                {"$group":{"_id":"$UID", "Num of Member":{"$sum":1}}}
-            ])
-            answer[y] = len(list(resultMembers))
-        logger.info('%.2f All Members by year, %s', time.time() - t0, answer)
-        return answer
+        Year=["12","14","15"]
+        partMember = participating_member_uids(db, Year)
+        answer_dict = member_count(db, partMember, including=False)
+        logger.info('%.2f members_non_participating_raw %s', time.time() - t0, answer_dict)
+        return answer_dict
 
     def expenses_non_participating(self):
         t0 = time.time()
@@ -190,152 +212,67 @@ class RPCMethods:
         #members for each year
         Year=["12","13","14", "15"]
         Year=["12","14","15"]
-        partMember = {}
-        for y in Year:
-            partMember[y] = db.biometrics.find({"Year":int(y)}).distinct("UID")
+        partMember = participating_member_uids(db, Year)
 
-        answer_dict = {}
-        for y in Year:
-            resultFees = collection.aggregate([
-                {"$match":{"Year": y}},
-                # {"$match":{"IncDate":{"$regex":"%s$"%(y)}}},
-                {"$match":{"UID":{"$nin":partMember["%s"%(y)]}}},
-                {"$group":{"_id":"%s"%(y), "TotalPaid":{"$sum":"$Paid"}}}
-            ])
-            answer_dict[y] = list(resultFees)
+        answer_dict = expense_totals(db, partMember, including=False)
         members = self.members_non_participating_raw()
-        logger.info('self.members_non_participating_raw: %s', members)
         answer = [{"_id":str(2000+int(k)), "dollars": round(answer_dict[k][0]["TotalPaid"]/12.0/members[k], 2)} for k in answer_dict.keys() if k != '15']
         
-        logger.info('%.2f Non-Participating Member Expenses by year, %s', time.time() - t0, answer)
+        logger.info('%.2f expenses_non_participating, %s', time.time() - t0, answer)
         return answer
 
     def members_engaged(self):
         answer_dict = self.members_engaged_raw()
-        # {"13": 258, "12": 398, "15": 0, "14": 706}
-        # [{"count": 434, "_id": "2012"}, {"cou...  ]
         answer = [{"_id": str(2000+int(k)), "count":answer_dict[k]} for k in answer_dict.keys() if k != '15']
         return answer
 
     def members_engaged_raw(self):
         t0 = time.time()
-#        answer = 'Engaged Member count by year not ready yet'
-#        return answer
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
-        collection = db['claims']
 
-        #memmbers for each year
-        engagedMember={}
         Year=["12","13","14", "15"]
         Year=["12","14","15"]
-        for y in Year:
-            engagedMember[y]=db.biometrics.find(
-                {"$and":[
-                    {"Year":int(y)},
-                    {"Msubs": {"$in":EngagedStatus['Y']}}
-                ]
-             } ).distinct("UID")
-
-        answer = {}
-        for y in Year:
-            resultMembers = collection.aggregate([
-                {"$match":{"Year":y}},
-                #{"$match":{"IncDate":{"$regex":"%s$"%(y)}}},
-                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
-                {"$group":{"_id":"$UID", "Num of Member":{"$sum":1}}}
-            ])
-            answer[y] = len(list(resultMembers))
+        engagedMember=engaged_member_uids(db, Year)
+        answer = member_count(db, engagedMember)
         logger.info('%.2f Engaged Members by year, %s', time.time() - t0, answer)
         return answer
 
     def expenses_engaged(self):
         t0 = time.time()
-#        answer = 'Engaged Member Expenses by year not ready yet'
-#        return answer
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
-        collection = db['claims']
 
-        #memmbers for each year
-        engagedMember={}
         Year=["12","13","14", "15"]
         Year=["12","14","15"]
-        for y in Year:
-            engagedMember[y]=db.biometrics.find(
-                {"$and":[
-                    {"Year":int(y)},
-                    {"Msubs": {"$in":EngagedStatus['Y']}}
-                ]
-             } ).distinct("UID")
-
-        answer_dict = {}
-        for y in Year:
-            resultFees = collection.aggregate([
-                {"$match":{"Year":y}},
-                #{"$match":{"IncDate":{"$regex":"%s$"%(y)}}},
-                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
-                {"$group":{"_id":"%s"%(y), "TotalPaid":{"$sum":"$Paid"}}}
-            ])
-            answer_dict[y] = list(resultFees)
-        members = self.members_engaged_raw()
-        logger.info('self.members_engaged: %s', members)
+        engagedMember=engaged_member_uids(db, Year)
+        members = member_count(db, engagedMember)
+        answer_dict = expense_totals(db, engagedMember)
         answer = [{"_id":str(2000+int(k)), "dollars": round(answer_dict[k][0]["TotalPaid"]/12.0/members[k], 2)} for k in answer_dict.keys() if k != '15']
         
         logger.info('%.2f Engaged Expenses by year, %s', time.time() - t0, answer)
         return answer
 
     def figure_3(self):
-        #########Figure 3
         t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
         claims = db['claims']
-        logger.info('In figure 3')
 
-        partMember = {}
         Year=["12","13","14", "15"]
         Year=["12","14"]
-        for y in Year:
-            partMember[y] = list(db.biometrics.find({"Year":int(y)}).distinct("UID"))
-        #logger.info('partMember %s', partMember)
+        partMember = participating_member_uids(db, Year)
 
-        lt500 = {}
-        for y in Year:
-            resultFees = claims.aggregate([
-                {"$match":{"Year":y}},
-                {"$match":{"UID":{"$in":partMember["%s"%(y)]}}},
-                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
-                {"$match":{"TotalPaid": {"$lt":500}}}
-            ])
-            lt500[y] = len(list(resultFees))
-            logger.info("{Year: %s, Num of Members < 500: %s}"%(y,len(list(resultFees))))
+        lt500 = member_count_having(db, partMember, {"$match":{"TotalPaid": {"$lt":500}}})
+        tween = member_count_having(db, partMember, {"$match":{"TotalPaid": {"$lt":10000,"$gt":500}}})
+        gt10k = member_count_having(db, partMember, {"$match":{"TotalPaid": {"$gt":10000}}})
+        logger.info('lt500 %s', lt500)
+        logger.info('tween %s', tween)
+        logger.info('gt10k %s', gt10k)
 
-        between = {}
-        for y in Year:
-            resultFees = claims.aggregate([
-                {"$match":{"Year":y}},
-                {"$match":{"UID":{"$in":partMember["%s"%(y)]}}},
-                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
-                {"$match":{"TotalPaid": {"$lt":10000,"$gt":500}}}
-            ])
-            between[y] = len(list(resultFees))
-            logger.info("{Year: %s, Num of Members in [500,10000]: %s}"%(y,len(list(resultFees))))
-
-        gt10k = {}
-        for y in Year:
-            resultFees = claims.aggregate([
-                {"$match":{"Year":y}},
-                {"$match":{"UID":{"$in":partMember["%s"%(y)]}}},
-                {"$group":{"_id":"$UID", "TotalPaid":{"$sum":"$Paid"}}},
-                {"$match":{"TotalPaid": {"$gt":10000}}}
-            ])
-            gt10k[y] = len(list(resultFees))
-            logger.info("{Year: %s, Num of Members > 10000: %s}"%(y,len(list(resultFees))))
-            # [{"12": 86, "14": 189}, {"12": 269, "14": 462}, {"12": 43, "14": 60}]
         ret = []
         for y in Year:
-            total = lt500[y] + between[y] + gt10k[y]
+            total = lt500[y] + tween[y] + gt10k[y]
             lo_spenders = round(lt500[y]*100.0/total)
             hi_spenders = round(gt10k[y]*100.0/total)
             ret.append({
