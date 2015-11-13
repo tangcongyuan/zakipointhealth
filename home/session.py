@@ -242,17 +242,22 @@ def sign_in_form(request):
 #                company_logo = "static/dimages/0916_home_1.png"
                 try:
                     user_co_domain  = email[email.index('@')+1:]
-                    user_co = co_domain[:co_domain.index('.com')]
-                    if co == 'hsirx':
+                    logger.debug('user_co_domain %s', user_co_domain)
+                    user_co = user_co_domain[:user_co_domain.index('.com')]
+                    logger.debug('user_co %s', user_co)
+                    if user_co == 'hsirx':
                         channel_logo = "static/images/hsirx_logo.png"
                         company_logo = "static/dimages/cedar-rapids-logo.png"
-                    elif co == 'aphys':
+                    elif user_co == 'aphys':
                         channel_logo = "static/images/affiliated-physicians-logo.jpg"
                 except:
                     user_co = 'zph'
+                    channel_logo = 'static/images/logo-blue-transparent.png'
+
                 request.session['user_co'] = user_co
                 request.session['channel_logo'] = channel_logo
                 request.session['company_logo'] = company_logo
+                logger.debug('user_co %s, channel_logo %s, company_logo %s', user_co, channel_logo, company_logo)
 
                 # put AppUser in the session
                 request.session['app_user'] = app_user.pk

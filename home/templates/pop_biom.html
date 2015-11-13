@@ -2,8 +2,10 @@
 
 {% block container_content %}
   <link rel="stylesheet" type="text/css"  href="/static/css/barchart.css">
+  <link rel="stylesheet" type="text/css"  href="/static/css/pop_biom.css">
   <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script src="/static/js/barchart.js"> </script>
+  <script src="/static/js/barchart.js"></script>
+  <script src="/static/js/sankey.js"></script>
   <!-- Please make sure jQuery is also loaded. -->
   
   <div class="container">
@@ -130,49 +132,40 @@
             <div class="center">
               <h4>RISK DISTRIBUTION</h4>
               <p>High risk population has <b>decreased by NN%</b> over the last <b>3 years</b></p>
-	      <!--
-              <div id="participant_risk_text" class="side-by-side div-size-big" style="margin-right: 5px;">
-	      </div>
-              <div id="engaged_risk_text" style="display: inline-block;" class="div-size-big">
-	      </div>
-	      -->
               <div id="participant_risk" class="side-by-side div-size-big" style="margin-right: 5px;">
-		<!-- <div class="figure_l figure_title">Participant Risk</div> -->
-	      </div>
-              <div id="engaged_risk" style="display: inline-block;" >
-		<!-- <div class="figure_l figure_title">Engaged Risk</div> -->
-	      </div>
+	            </div>
+              <div id="engaged_risk" style="display: inline-block;">
+      	      </div>
+
               <h4>CHANGES IN RISK</h4>
-              <p>Engagement resulted in <b>X%</b> of the population moving to a lower risk level in the last <b>3 years</b></p>
-              <div id="changes_risk_participants" class="side-by-side " style="margin-right: 5px;">
-                <img src="static/dimages/participant_risk_changes.png?version={{ version }}" />
+              <p>Engagement resulted in <b>X%</b> of the population moving to a lower risk level in the last <b>4 years</b></p>
+              <div id="changes_risk_participants" class="side-by-side div-size-big" style="margin-right: 5px;">
               </div>
-              <div id="changes_risk_engaged" style="display: inline-block;" class="div-size-big">
-                <img src="static/dimages/engaged_risk_changes.png?version={{ version }}" />
-	      </div>
+              <div id="changes_risk_engaged" style="display: inline-block;">
+              </div>
             </div>
             <hr></hr>
             <div class="center">
               <h4>IMPROVED BIOMETRICS</h4>
               <p>Engagement resulted in improvement for <b>X</b> biometrics:<b>Body Mass Index</b> and <b>Blood Pressure</b></p>
               <div>
-                <div id="bmi_participants" class="side-by-side div-size" style="margin-bottom: 60px;">
-		  <p>BMI for Participants</p>
-                  <img src="static/dimages/bmi_part.png?version={{ version }}" class="side-by-side div-size" style="width: 150px; height:150px;"/>
+                <div id="biom1_participants" class="side-by-side div-size" style="margin-bottom: 60px;">
+		  <p></p>
+                  <!--<div class="side-by-side div-size" style="width: 150px; height:150px; font-size: 0.75em;" > </div>-->
 		</div>
-                <div id="bmi_engaged" class="side-by-side div-size" style="margin-bottom: 60px;">
-		  <p>BMI for Engaged</p>
-                  <img src="static/dimages/bmi_engaged.png?version={{ version }}" class="side-by-side div-size" style="width: 150px; height: 150px;" />
+                <div id="biom1_engaged" class="side-by-side div-size" style="margin-bottom: 60px;">
+		  <p></p>
+                  <!--<div class="side-by-side div-size" style="width: 150px; height: 150px; font-size: 0.75em;" > </div>-->
 		</div>
               </div>
-	      <div>
-                <div id="blood_press_participants" class="side-by-side div-size">
-		  <div style="height: 44px;">Blood Pressure for Participants</div>
-                  <img src="static/dimages/hyper_part.png?version={{ version }}" class="side-by-side div-size" style="width: 150px; height: 150px; margin-bottom: 64px;" />
+              <div>
+                <div id="biom2_participants" class="side-by-side div-size" style="margin-bottom: 60px;">
+		  <p></p>
+                  <!--<div class="side-by-side div-size" style="width: 150px; height:150px; font-size: 0.75em;" > </div>-->
 		</div>
-                <div id="blood_press_engaged" class="side-by-side div-size">
-		  <div style="height: 44px;" >Blood Pressure for Engaged</div>
-                  <img src="static/dimages/hyper_engaged.png?version={{ version }}" class="side-by-side div-size" style="width: 150px; height: 150px; margin-bottom: 64px;" />
+                <div id="biom2_engaged" class="side-by-side div-size" style="margin-bottom: 60px;">
+		  <p></p>
+                  <!--<div class="side-by-side div-size" style="width: 150px; height: 150px; font-size: 0.75em;" > </div>-->
 		</div>
               </div>
             </div>
@@ -517,7 +510,7 @@
           var y = d3.scale.linear()
               .range([height-50, 0]);
 
-          var color = d3.scale.ordinal().range(["steelblue", "#BDBDBD", "#F78181"]);
+          var color = d3.scale.ordinal().range(["#F78181", "#BDBDBD", "steelblue"]);
 
           var xAxis = d3.svg.axis()
               .scale(x)
@@ -627,8 +620,6 @@
       $.post('/rpc/1/healthmetrics/', {'func': 'risk_engaged', 'args': JSON.stringify([])}, function(data) {
           /* $("#engaged_risk_text").html(data); */
 
-          console.log(data);
-
           var title = "Engaged Risk";
 
           var loc = "#engaged_risk";
@@ -645,7 +636,7 @@
           var y = d3.scale.linear()
               .range([height-50, 0]);
 
-          var color = d3.scale.ordinal().range(["steelblue", "#BDBDBD", "#F78181"]);
+          var color = d3.scale.ordinal().range(["#F78181", "#BDBDBD", "steelblue"]);
 
           var xAxis = d3.svg.axis()
               .scale(x)
@@ -970,7 +961,7 @@
         });
 
         $.post('/rpc/1/healthmetrics/', {'func': 'members_participating', 'args': JSON.stringify([])}, function(data) {
-          $("#members_participating").html(data);
+		$("#members_participating").html(data);
         }).fail(function() {
           $("#members_participating").html('Error with members_participating');
         });
@@ -1353,6 +1344,691 @@
 
         }).fail(function() {
           $("#figure3").html('Error with figure_3');
+        });
+
+        $.post('/rpc/1/healthmetrics/', {'func': 'risk_participating_changes', 'args': JSON.stringify([])}, function(data) {
+          //$("#risk_participating_changes div").html(data);
+          
+          data = JSON.parse(data);
+
+          var title = "Changes in Risk for Participants";
+          var loc = "#changes_risk_participants";
+
+          var units = "People";
+
+          var margin = {top: 70, right: 80, bottom: 80, left: 40},
+              width = 400 - margin.left - margin.right,
+              height = 400 - margin.top - margin.bottom;
+
+          var formatNumber = d3.format(",.0f"),    // zero decimal places
+              format = function(d) { return formatNumber(d) + " " + units; },
+              color = d3.scale.ordinal().range(["#F78181", "#BDBDBD", "steelblue"]);
+
+          // append the svg canvas to the page
+          var svg = d3.select(loc).append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          // Set the sankey diagram properties
+          var sankey = d3.sankey()
+              .nodeWidth(30)
+              .nodePadding(45)
+              .size([width, height]);
+
+          var path = sankey.link();
+
+          var graph = {"nodes" : [], "links" : []};
+          var years = new Set();
+
+          $.each(data, function (i, d) {
+            graph.nodes.push({ "name": d.SourceYear + ' ' + d.Source });
+            graph.nodes.push({ "name": d.TargetYear + ' ' + d.Target });
+            graph.links.push({ "source": d.SourceYear + ' ' + d.Source,
+                             "target": d.TargetYear + ' ' + d.Target,
+                             "value": +d.Count });
+            years.add(d.SourceYear);
+            years.add(d.TargetYear);
+          });
+
+          graph.nodes = graph.nodes.sort(function(a, b) { 
+              if (a.name.slice(0,5) > b.name.slice(0,5)) return -1;
+              if (a.name.slice(0,5) < b.name.slice(0,5)) return 1;
+              if (a.name.slice(5,6) == 'H') return -1;
+              if (a.name.slice(5,6) == 'L') return 1;
+              if (a.name.slice(5,6) == 'M' && b.name.slice(5,6) == 'H') return 1;
+              if (a.name.slice(5,6) == 'M' && b.name.slice(5,6) == 'L') return -1;
+              return 0;
+          });
+
+          // return only the distinct / unique nodes
+          graph.nodes = d3.keys(d3.nest()
+            .key(function (d) { return d.name; })
+            .map(graph.nodes));
+
+
+          // loop through each link replacing the text with its index from node
+          graph.links.forEach(function (d, i) {
+            graph.links[i].source = graph.nodes.indexOf(graph.links[i].source);
+            graph.links[i].target = graph.nodes.indexOf(graph.links[i].target);
+          });
+
+          //now loop through each nodes to make nodes an array of objects
+          // rather than an array of strings
+          graph.nodes.forEach(function (d, i) {
+            graph.nodes[i] = { "name": d };
+          }); 
+
+          sankey
+            .nodes(graph.nodes)
+            .links(graph.links)
+            .layout(32);
+
+          // add in the links
+          var link = svg.append("g").selectAll(".link")
+            .data(graph.links)
+            .enter().append("path")
+            .attr("class", "link")
+            .attr("d", path)
+            .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+            .sort(function(a, b) { return b.dy - a.dy; });
+
+          // add the link titles
+          link.append("title")
+            .text(function(d) { return d.source.name + " → " + d.target.name + "\n" + format(d.value); });
+
+          // add in the nodes
+          var node = svg.append("g").selectAll(".node")
+            .data(graph.nodes)
+            .enter().append("g")
+            .attr("class", "node")
+            .attr("transform", function(d) { 
+            return "translate(" + d.x + "," + d.y + ")"; })
+            .call(d3.behavior.drag()
+            .origin(function(d) { return d; })
+            .on("dragstart", function() { 
+            this.parentNode.appendChild(this); })
+            .on("drag", dragmove));     
+
+          // add the rectangles for the nodes
+          node.append("rect")
+            .attr("height", function(d) { return d.dy; })
+            .attr("width", sankey.nodeWidth())
+            //.style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+            .style("fill", function(d, i) { return d.color = color(i%3); })
+            .style("opacity", 0.9)
+            .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+            .append("title")
+            .text(function(d) { 
+            return d.name + "\n" + format(d.value); }); 
+
+          // add in the title for the nodes
+          node.append("text")
+            //.attr("x", -6)
+            .attr("y", function(d) { return d.dy / 2; })
+            //.attr("dx", "1em")
+            .attr("dy", ".35em")
+            .attr("text-anchor", "end")
+            .attr("transform", null)
+            .text(function(d) { return d.name.slice(4); })
+            //.filter(function(d) { return d.x < width / 2; })
+            .attr("x", 5+sankey.nodeWidth())
+            .style("font-size", ".7em")
+            .attr("text-anchor", "start");
+
+          years = Array.from(years);
+
+          svg.selectAll(".text")
+            .data(years)
+            .enter().append("text")
+            .attr("x", function(d, i) { return (1.2*i)*(width/(years.length));})
+            .attr("y", 50-margin.top)
+            .attr("dx", ".1em")
+            .style("font-size","0.8em")
+            .text(function(d) { return d; });
+
+          svg.selectAll(".text")
+            .data(years)
+            .enter().append("text")
+            .attr("x", width/2)
+            .attr("y", 20-margin.top)
+            .attr("dx", "-6em")
+            .style("font-size","0.9em")
+            .text(title);
+
+          // the function for moving the nodes
+          function dragmove(d) {
+            d3.select(this).attr("transform", 
+                "translate(" + d.x + "," + (
+                      d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
+                  ) + ")");
+            sankey.relayout();
+            link.attr("d", path);
+          }
+
+
+        }).fail(function() {
+          $("#figure3").html('Error with figure_3');
+        });
+
+        $.post('/rpc/1/healthmetrics/', {'func': 'risk_engaged_changes', 'args': JSON.stringify([])}, function(data) {
+          //$("#risk_engaged_changes div").html(data);
+
+          data = JSON.parse(data);
+
+          var title = "Changes in Risk for Engaged";
+          var loc = "#changes_risk_engaged";
+
+          var units = "People";
+
+          var margin = {top: 70, right: 80, bottom: 80, left: 40},
+              width = 400 - margin.left - margin.right,
+              height = 400 - margin.top - margin.bottom;
+
+          var formatNumber = d3.format(",.0f"),    // zero decimal places
+              format = function(d) { return formatNumber(d) + " " + units; },
+              color = d3.scale.ordinal().range(["#F78181", "#BDBDBD", "steelblue"]);
+
+          // append the svg canvas to the page
+          var svg = d3.select(loc).append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          // Set the sankey diagram properties
+          var sankey = d3.sankey()
+              .nodeWidth(30)
+              .nodePadding(45)
+              .size([width, height]);
+
+          var path = sankey.link();
+
+          var graph = {"nodes" : [], "links" : []};
+          var years = new Set();
+
+          $.each(data, function (i, d) {
+            graph.nodes.push({ "name": d.SourceYear + ' ' + d.Source });
+            graph.nodes.push({ "name": d.TargetYear + ' ' + d.Target });
+            graph.links.push({ "source": d.SourceYear + ' ' + d.Source,
+                             "target": d.TargetYear + ' ' + d.Target,
+                             "value": +d.Count });
+            years.add(d.SourceYear);
+            years.add(d.TargetYear);
+          });
+
+          graph.nodes = graph.nodes.sort(function(a, b) { 
+              if (a.name.slice(0,5) > b.name.slice(0,5)) return -1;
+              if (a.name.slice(0,5) < b.name.slice(0,5)) return 1;
+              if (a.name.slice(5,6) == 'H') return -1;
+              if (a.name.slice(5,6) == 'L') return 1;
+              if (a.name.slice(5,6) == 'M' && b.name.slice(5,6) == 'H') return 1;
+              if (a.name.slice(5,6) == 'M' && b.name.slice(5,6) == 'L') return -1;
+              return 0;
+          });
+
+          // return only the distinct / unique nodes
+          graph.nodes = d3.keys(d3.nest()
+            .key(function (d) { return d.name; })
+            .map(graph.nodes));
+
+
+          // loop through each link replacing the text with its index from node
+          graph.links.forEach(function (d, i) {
+            graph.links[i].source = graph.nodes.indexOf(graph.links[i].source);
+            graph.links[i].target = graph.nodes.indexOf(graph.links[i].target);
+          });
+
+          //now loop through each nodes to make nodes an array of objects
+          // rather than an array of strings
+          graph.nodes.forEach(function (d, i) {
+            graph.nodes[i] = { "name": d };
+          }); 
+
+          sankey
+            .nodes(graph.nodes)
+            .links(graph.links)
+            .layout(32);
+
+          // add in the links
+          var link = svg.append("g").selectAll(".link")
+            .data(graph.links)
+            .enter().append("path")
+            .attr("class", "link")
+            .attr("d", path)
+            .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+            .sort(function(a, b) { return b.dy - a.dy; });
+
+          // add the link titles
+          link.append("title")
+            .text(function(d) { return d.source.name + " → " + d.target.name + "\n" + format(d.value); });
+
+          // add in the nodes
+          var node = svg.append("g").selectAll(".node")
+            .data(graph.nodes)
+            .enter().append("g")
+            .attr("class", "node")
+            .attr("transform", function(d) { 
+            return "translate(" + d.x + "," + d.y + ")"; })
+            .call(d3.behavior.drag()
+            .origin(function(d) { return d; })
+            .on("dragstart", function() { 
+            this.parentNode.appendChild(this); })
+            .on("drag", dragmove));     
+
+          // add the rectangles for the nodes
+          node.append("rect")
+            .attr("height", function(d) { return d.dy; })
+            .attr("width", sankey.nodeWidth())
+            //.style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+            .style("fill", function(d, i) { return d.color = color(i%3); })
+            .style("opacity", 0.9)
+            .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+            .append("title")
+            .text(function(d) { 
+            return d.name + "\n" + format(d.value); }); 
+
+          // add in the title for the nodes
+          node.append("text")
+            //.attr("x", -6)
+            .attr("y", function(d) { return d.dy / 2; })
+            //.attr("dx", "1em")
+            .attr("dy", ".35em")
+            .attr("text-anchor", "end")
+            .attr("transform", null)
+            .text(function(d) { return d.name.slice(4); })
+            //.filter(function(d) { return d.x < width / 2; })
+            .attr("x", 5+sankey.nodeWidth())
+            .style("font-size", ".7em")
+            .attr("text-anchor", "start");
+
+          years = Array.from(years);
+
+          svg.selectAll(".text")
+            .data(years)
+            .enter().append("text")
+            .attr("x", function(d, i) { return (1.2*i)*(width/(years.length));})
+            .attr("y", 50-margin.top)
+            .attr("dx", ".1em")
+            .style("font-size","0.8em")
+            .text(function(d) { return d; });
+
+          svg.selectAll(".text")
+            .data(years)
+            .enter().append("text")
+            .attr("x", width/2)
+            .attr("y", 20-margin.top)
+            .attr("dx", "-6em")
+            .style("font-size","0.9em")
+            .text(title);
+
+          // the function for moving the nodes
+          function dragmove(d) {
+            d3.select(this).attr("transform", 
+                "translate(" + d.x + "," + (
+                      d.y = Math.max(0, Math.min(height - d.dy, d3.event.y))
+                  ) + ")");
+            sankey.relayout();
+            link.attr("d", path);
+          }
+        }).fail(function() {
+          $("#figure3").html('Error with figure_3');
+        });
+
+        $.post('/rpc/1/healthmetrics/', {'func': 'improved_biometrics', 'args': JSON.stringify([])}, function(data) {
+
+          data = JSON.parse(data);
+          var title = Object.keys(data[0])[0];
+          var value = data[0][title]
+          $("#biom1_participants p").html(title);
+          //$("#biom1_participants div").html(JSON.stringify(value));
+
+
+          var margin = {top: 70, right: 120, bottom: 20, left: 30},
+              width = 300 - margin.left - margin.right,
+              height = 200 - margin.top - margin.bottom;
+
+          var x = d3.scale.ordinal()
+              .rangeRoundBands([0, width], .5);
+
+          var y = d3.scale.linear()
+              .rangeRound([height, 0]);
+
+          var color = d3.scale.ordinal()
+              .range(["steelblue", "#BDBDBD", "#F78181"]);
+
+          var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom");
+
+          var loc = "#biom1_participants";
+
+          var svg = d3.select(loc).append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+
+          $.each(value, function(i, d) {
+            var y0 = 0;
+            d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
+            d.total = d.claims[d.claims.length - 1].y1;
+          });
+          console.log(value);
+
+          value = value.sort(function(a, b) { 
+            if (a.Year > b.Year) return 1;
+            if (a.Year < b.Year) return -1;
+            return 0;
+          });
+
+          x.domain(value.map(function(d) { return d.Year; }));
+          y.domain([0, d3.max(value, function(d) { return d.total; })]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis);
+
+          var claims = svg.selectAll("claims")
+              .data(value)
+              .enter().append("g")
+              .attr("class", "g")
+              .attr("transform", function(d) { return "translate(" + x(d.Year) + ",0)"; });
+
+          claims.selectAll("rect")
+              .data(function(d) { return d.claims; })
+            .enter().append("rect")
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.y1); })
+              .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+              .style("opacity", 0.9)
+              .style("fill", function(d) { return color(d.level); });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 20-margin.top; })
+              .attr("fill", "#F78181")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.critical+'%'; });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 40-margin.top; })
+              .attr("fill", "#BDBDBD")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.outofNormal+'%'; });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 60-margin.top; })
+              .attr("fill", "steelblue")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.normal+'%'; });
+
+
+/*--------------------------------------------------------------------------------*/
+          title = Object.keys(data[1])[0];
+          value = data[1][title]
+          $("#biom1_engaged p").html(title);
+          //$("#biom1_engaged div").html(JSON.stringify(value));
+
+          var loc = "#biom1_engaged";
+
+          var svg = d3.select(loc).append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+
+          $.each(value, function(i, d) {
+            var y0 = 0;
+            d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
+            d.total = d.claims[d.claims.length - 1].y1;
+          });
+          console.log(value);
+
+          value = value.sort(function(a, b) { 
+            if (a.Year > b.Year) return 1;
+            if (a.Year < b.Year) return -1;
+            return 0;
+          });
+
+          x.domain(value.map(function(d) { return d.Year; }));
+          y.domain([0, d3.max(value, function(d) { return d.total; })]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis);
+
+          var claims = svg.selectAll("claims")
+              .data(value)
+              .enter().append("g")
+              .attr("class", "g")
+              .attr("transform", function(d) { return "translate(" + x(d.Year) + ",0)"; });
+
+          claims.selectAll("rect")
+              .data(function(d) { return d.claims; })
+            .enter().append("rect")
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.y1); })
+              .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+              .style("opacity", 0.9)
+              .style("fill", function(d) { return color(d.level); });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 20-margin.top; })
+              .attr("fill", "#F78181")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.critical+'%'; });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 40-margin.top; })
+              .attr("fill", "#BDBDBD")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.outofNormal+'%'; });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 60-margin.top; })
+              .attr("fill", "steelblue")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.normal+'%'; });
+
+/*--------------------------------------------------------------------------------*/
+
+          title = Object.keys(data[2])[0];
+          value = data[2][title]
+          $("#biom2_participants p").html(title);
+          //$("#biom2_participants div").html(JSON.stringify(value));
+
+          var loc = "#biom2_participants";
+
+          var svg = d3.select(loc).append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+
+          $.each(value, function(i, d) {
+            var y0 = 0;
+            d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
+            d.total = d.claims[d.claims.length - 1].y1;
+          });
+          console.log(value);
+
+          value = value.sort(function(a, b) { 
+            if (a.Year > b.Year) return 1;
+            if (a.Year < b.Year) return -1;
+            return 0;
+          });
+
+          x.domain(value.map(function(d) { return d.Year; }));
+          y.domain([0, d3.max(value, function(d) { return d.total; })]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis);
+
+          var claims = svg.selectAll("claims")
+              .data(value)
+              .enter().append("g")
+              .attr("class", "g")
+              .attr("transform", function(d) { return "translate(" + x(d.Year) + ",0)"; });
+
+          claims.selectAll("rect")
+              .data(function(d) { return d.claims; })
+            .enter().append("rect")
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.y1); })
+              .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+              .style("opacity", 0.9)
+              .style("fill", function(d) { return color(d.level); });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 20-margin.top; })
+              .attr("fill", "#F78181")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.critical+'%'; });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 40-margin.top; })
+              .attr("fill", "#BDBDBD")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.outofNormal+'%'; });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 60-margin.top; })
+              .attr("fill", "steelblue")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.normal+'%'; });
+
+/*--------------------------------------------------------------------------------*/
+
+          title = Object.keys(data[3])[0];
+          value = data[3][title]
+          $("#biom2_engaged p").html(title);
+          //$("#biom2_engaged div").html(JSON.stringify(value));
+
+          var loc = "#biom2_engaged";
+
+          var svg = d3.select(loc).append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+          color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+
+          $.each(value, function(i, d) {
+            var y0 = 0;
+            d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
+            d.total = d.claims[d.claims.length - 1].y1;
+          });
+          console.log(value);
+
+          value = value.sort(function(a, b) { 
+            if (a.Year > b.Year) return 1;
+            if (a.Year < b.Year) return -1;
+            return 0;
+          });
+
+          x.domain(value.map(function(d) { return d.Year; }));
+          y.domain([0, d3.max(value, function(d) { return d.total; })]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis);
+
+          var claims = svg.selectAll("claims")
+              .data(value)
+              .enter().append("g")
+              .attr("class", "g")
+              .attr("transform", function(d) { return "translate(" + x(d.Year) + ",0)"; });
+
+          claims.selectAll("rect")
+              .data(function(d) { return d.claims; })
+            .enter().append("rect")
+              .attr("width", x.rangeBand())
+              .attr("y", function(d) { return y(d.y1); })
+              .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+              .style("opacity", 0.9)
+              .style("fill", function(d) { return color(d.level); });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 20-margin.top; })
+              .attr("fill", "#F78181")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.critical+'%'; });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 40-margin.top; })
+              .attr("fill", "#BDBDBD")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.outofNormal+'%'; });
+
+          svg.selectAll("claims")
+              .data(value)
+              .enter().append("text")
+              .attr("x", function(d, i) { return 1.5*x.rangeBand()+x.rangeBand()*2*i;})
+              .attr("y", function(d, i) { return 60-margin.top; })
+              .attr("fill", "steelblue")
+              .attr("dx", "-0.9em")
+              .attr("dy", "0em")
+              .text(function(d) { return d.normal+'%'; });
+
+        }).fail(function() {
+          $("#figure3").html('Error with improved_biometrics');
         });
 
 {% endblock %}  <!-- loadscript -->

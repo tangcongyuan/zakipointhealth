@@ -18,7 +18,6 @@ logging.getLogger().setLevel(logging.DEBUG)
 logger = logging.getLogger('zakipoint')
 logger.setLevel(logging.DEBUG)
 
-
 import zphalfa.rpc as rpc
 
 EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance',
@@ -550,18 +549,81 @@ class RPCMethods:
         logger.info('%.2f risk_engaged answer: %s', time.time() - t0, answer)
         return answer
 
+    def outputReturn(self,groupHigh,groupMe,groupLow,period):
+        highGroup=[]
+        meGroup=[]
+        lowGroup=[]
+        group=['High','Medium','Low']
+        ans={}
+        answer = []
+
+        for i in range(len(group)):
+            for item in period:
+                ans['Source']='High'
+                ans['SourceYear']="20"+item.split('-')[0]
+                ans['TargetYear']="20"+item.split('-')[1]
+                if i==0:
+                    ans['Target']= 'High'
+                    ans['Count']=len(set(groupHigh[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
+                elif i==1:
+                    ans['Target']= 'Medium'
+                    ans['Count']=len(set(groupHigh[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
+                else:
+                    ans['Target']= 'Low'
+                    ans['Count']=len(set(groupHigh[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
+                highGroup.append(ans) 
+                ans={}
+
+        for i in range(len(group)):
+            for item in period:
+                ans['Source']='Medium'
+                ans['SourceYear']="20"+item.split('-')[0]
+                ans['TargetYear']="20"+item.split('-')[1]
+                if i==0:
+                    ans['Target']= 'High'
+                    ans['Count']=len(set(groupMe[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
+                elif i==1:
+                    ans['Target']= 'Medium'
+                    ans['Count']=len(set(groupMe[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
+                else:
+                    ans['Target']= 'Low'
+                    ans['Count']=len(set(groupMe[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
+                meGroup.append(ans) 
+                ans={}
+
+        for i in range(len(group)):
+            for item in period:
+                ans['Source']='Low'
+                ans['SourceYear']="20"+item.split('-')[0]
+                ans['TargetYear']="20"+item.split('-')[1]
+                if i==0:
+                    ans['Target']= 'High'
+                    ans['Count']=len(set(groupLow[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
+                elif i==1:
+                    ans['Target']= 'Medium'
+                    ans['Count']=len(set(groupLow[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
+                else:
+                    ans['Target']= 'Low'
+                    ans['Count']=len(set(groupLow[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
+                lowGroup.append(ans) 
+                ans={}
+
+       
+        for i in highGroup:
+            answer.append(i)
+        for i in meGroup:
+            answer.append(i)
+        for i in lowGroup:
+            answer.append(i)
+        #logger.info('outputReturn 5, %s,\n\n%s,\n\n%s', answer['High'], answer['Medium'], answer['Low'])
+        return answer
+
     def risk_participating_changes(self):
         t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
-        '''
-        chronicCare: high
-        riskReduction: medium
-        riskPrevention: low
-        '''
-        print "high:chronicCare"
-        print "medium:riskReduction"
-        print "low:riskPrevention"
+        logger.info('risk_participating_changes 1')
+     
         level=["RiskPrevention","RiskReduction","ChronicCare"]
         Year=['12','13','14','15']
         period=['12-13','13-14','14-15']
@@ -569,45 +631,28 @@ class RPCMethods:
         groupMe = {}
         groupLow = {}
         interResult = {}
-        finalResult = []
+       
         for l in level:
-            result=db.bio.aggregate([
+            result=db.biometrics.aggregate([
                 {"$match": {"Mstat": l}}, 
                 { "$group": {"_id": {"Year":"$Year","UID":"$UID","Risk":"$Mstat"}}}
             ])
     
-            i=0
             for document in result:   
                 for y in Year:
                     if (document["_id"]["Year"]==int(y)): 
                         interResult.setdefault(y,[]).append(document['_id']['UID'])
-        for y in Year:
-            if(l=="ChronicCare"):
-                groupHigh[y]=interResult[y]
-            elif(l=="RiskReduction"):
-                groupMe[y]=interResult[y]
-            else:
-                groupLow[y]=interResult[y]
-        interResult={}
-        # corresponding level mapping, like high to high
-        for item in period:
-            print "period %s:"%item
-            print "corresponding level mapping, like high to high:"
-            print "[high, medium, low]"
-            print len(set(groupHigh[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
-            print len(set(groupMe[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
-            print len(set(groupLow[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
-            # Uncorresponding level mapping, like high to medium
-            print
-            print "[high to me, high to low]"
-            print len(set(groupHigh[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
-            print len(set(groupHigh[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
-            print "[medium to low, medium to high]"
-            print len(set(groupMe[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
-            print len(set(groupMe[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
-            print "[low to me, low to high]"
-            print len(set(groupLow[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
-            print len(set(groupLow[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
+            for y in Year:
+                if(l=="ChronicCare"):
+                    groupHigh[y]=interResult[y]
+                elif(l=="RiskReduction"):
+                    groupMe[y]=interResult[y]
+                else:
+                    groupLow[y]=interResult[y]
+            interResult={}
+        logger.info('risk_participating_changes 2')
+        answer = self.outputReturn(groupHigh,groupMe,groupLow,period)
+        logger.info('risk_participating_changes 3, %s', answer)
         return answer
 
     def risk_engaged_changes(self):
@@ -624,30 +669,29 @@ class RPCMethods:
         groupMe = {}
         groupLow = {}
         interResult = {}
-        finalResult = []
+    
         engagedMember={}
 
 
         for y in Year:
-            engagedMember[y]=db.bio.find(
+            engagedMember[y]=db.biometrics.find(
                 {"$and":[
                     {"Year":int(y)},
                     {"Msubs": {"$in":EngagedStatus['Y']}}
                 ]
              } ).distinct("UID")
         for l in level:
-            result=db.bio.aggregate([
+            result=db.biometrics.aggregate([
                 {"$match": {"Mstat": l}}, 
                 {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
 
                 { "$group": {"_id": {"Year":"$Year","UID":"$UID","Risk":"$Mstat"}}}
             ])
     
-        i=0
-        for document in result:   
-            for y in Year:
-                if (document["_id"]["Year"]==int(y)): 
-                    interResult.setdefault(y,[]).append(document['_id']['UID'])
+            for document in result:   
+                for y in Year:
+                    if (document["_id"]["Year"]==int(y)): 
+                        interResult.setdefault(y,[]).append(document['_id']['UID'])
             for y in Year:
                 if(l=="ChronicCare"):
                     groupHigh[y]=interResult[y]
@@ -657,26 +701,684 @@ class RPCMethods:
                 
                 else:
                     groupLow[y]=interResult[y]
-        interResult={}
-        # corresponding level mapping, like high to high
-        for item in period:
-            print "period %s:"%item
-            print "corresponding level mapping, like high to high:"
-            print "[high, medium, low]"
-            print len(set(groupHigh[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
-            print len(set(groupMe[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
-            print len(set(groupLow[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
-            # Uncorresponding level mapping, like high to medium
-            print
-            print "[high to me, high to low]"
-            print len(set(groupHigh[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
-            print len(set(groupHigh[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
-            print "[medium to low, medium to high]"
-            print len(set(groupMe[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
-            print len(set(groupMe[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
-            print "[low to me, low to high]"
-            print len(set(groupLow[item.split('-')[0]]).intersection(groupMe[item.split('-')[1]]))
-            print len(set(groupLow[item.split('-')[0]]).intersection(groupHigh[item.split('-')[1]]))
+            interResult={}
+        return self.outputReturn(groupHigh,groupMe,groupLow,period)
+
+    
+    def answerFunction(self,Year,normal,outofNormal,critical):
+        ans={}
+        answer=[]
+        logger.error('answerFunction %s %s %s %s', Year,normal,outofNormal,critical)
+        for y in Year:
+            total=float(normal[y]+outofNormal[y]+critical[y])
+            try:
+                nor=int(round(normal[y]/total*100,0)) 
+                oon=int(round(outofNormal[y]/total*100,0))
+                cri=int(round(critical[y]/total*100,0))
+            except ZeroDivisionError:
+                logger.error('answerFunction year %s, total %s', y, total)
+                nor = 0
+                oon = 0
+                cri = 0
+
+            
+            ans['Year'] = '20'+y
+            ans['normal']=nor
+            ans['critical']=cri
+            ans['outofNormal']=oon
+            answer.append(ans)
+            ans={}
+        return answer
+
+    def BMIparticipant(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        #Range >=35:
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"BMI":{"$gt":35}}}
+            ])
+            listres = list(result)
+            critical[y]=int(len(listres))
+            logger.debug('BMIparticipant %s %s %s', y, int(len(listres)), critical[y])
+
+       #"Range [25,34.9]:"
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"BMI":{"$gt":25,"$lt":34.9}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        #"Range [18.5,24.9]:"
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"BMI":{"$gt":18.5,"$lt":24.9}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+
+        logger.debug('BMIResult %s', answer)
+        return answer
+
+
+    def BMIengaged(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        engagedMember={}
+        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance','GraduatetoRP','MedRxActive','GraduateRP','Monthly','movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
+               'N':['NotRequired','OptOut','Terminated','Missed','Dismissed','AppealFollowUp']}
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        for y in Year:
+            engagedMember[y]=db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+                 } ).distinct("UID")
+        #Range >=35:
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"BMI":{"$gt":35}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+       #"Range [25,34.9]:"
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"BMI":{"$gt":25,"$lt":34.9}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        #"Range [18.5,24.9]:"
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"BMI":{"$gt":18.5,"$lt":24.9}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def systolicParticipant(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        #Range >=160:
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Sys":{"$gt":160}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Sys":{"$gt":120,"$lt":159}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Sys":{"$lt":119}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def systolicEngaged(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        engagedMember={}
+        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance','GraduatetoRP','MedRxActive','GraduateRP','Monthly','movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
+               'N':['NotRequired','OptOut','Terminated','Missed','Dismissed','AppealFollowUp']}
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        for y in Year:
+            engagedMember[y]=db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+                 } ).distinct("UID")
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Sys":{"$gt":160}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Sys":{"$gt":120,"$lt":159}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Sys":{"$lt":119}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def diastolicParticipant(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        #Range >=160:
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Dia":{"$gt":100}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Dia":{"$gt":80,"$lt":99}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Dia":{"$lt":79}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def diastolicEngaged(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        engagedMember={}
+        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance','GraduatetoRP','MedRxActive','GraduateRP','Monthly','movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
+               'N':['NotRequired','OptOut','Terminated','Missed','Dismissed','AppealFollowUp']}
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        for y in Year:
+            engagedMember[y]=db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+                 } ).distinct("UID")
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Dia":{"$gt":100}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+      
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Dia":{"$gt":80,"$lt":99}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Dia":{"$lt":79}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def FBSParticipant(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"FasBS":{"$gt":126}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"FasBS":{"$gt":100,"$lt":125}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"FasBS":{"$gt":70,"$lt":99}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def FBSEngaged(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        engagedMember={}
+        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance','GraduatetoRP','MedRxActive','GraduateRP','Monthly','movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
+               'N':['NotRequired','OptOut','Terminated','Missed','Dismissed','AppealFollowUp']}
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        for y in Year:
+            engagedMember[y]=db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+                 } ).distinct("UID")
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"FasBS":{"$gt":126}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+      
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"FasBS":{"$gt":100,"$lt":125}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"FasBS":{"$gt":70,"$lt":99}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def TrigParticipant(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Trig":{"$gt":500}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Trig":{"$gt":150,"$lt":499}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Trig":{"$lt":149}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def TrigEngaged(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        engagedMember={}
+        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance','GraduatetoRP','MedRxActive','GraduateRP','Monthly','movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
+               'N':['NotRequired','OptOut','Terminated','Missed','Dismissed','AppealFollowUp']}
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        for y in Year:
+            engagedMember[y]=db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+                 } ).distinct("UID")
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Trig":{"$gt":500}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+      
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Trig":{"$gt":150,"$lt":499}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Trig":{"$lt":149}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def A1CParticipant(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"A1C":{"$gt":6.5}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"A1C":{"$gt":5.7,"$lt":6.4}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"A1C":{"$lt":5.6}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        logger.debug('A1CResult %s', answer)
+        return answer
+
+    def A1CEngaged(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        engagedMember={}
+        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance','GraduatetoRP','MedRxActive','GraduateRP','Monthly','movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
+               'N':['NotRequired','OptOut','Terminated','Missed','Dismissed','AppealFollowUp']}
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        for y in Year:
+            engagedMember[y]=db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+                 } ).distinct("UID")
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"A1C":{"$gt":6.5}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+      
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"A1C":{"$gt":5.7,"$lt":6.4}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"A1C":{"$lt":5.6}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def LDLParticipant(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"LDL":{"$gt":190}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"LDL":{"$gt":160,"$lt":189}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"LDL":{"$lt":159}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def LDLEngaged(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        engagedMember={}
+        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance','GraduatetoRP','MedRxActive','GraduateRP','Monthly','movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
+               'N':['NotRequired','OptOut','Terminated','Missed','Dismissed','AppealFollowUp']}
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        for y in Year:
+            engagedMember[y]=db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+                 } ).distinct("UID")
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"LDL":{"$gt":190}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+      
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"LDL":{"$gt":160,"$lt":189}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"LDL":{"$lt":159}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def TcholesParticipant(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Tcholes":{"$gt":240}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Tcholes":{"$gt":200,"$lt":239}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"Tcholes":{"$lt":199}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def TcholesEngaged(self):
+        client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+        db = client[DATABASES['mongo']['NAME']]
+        engagedMember={}
+        EngagedStatus={'Y':['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance','GraduatetoRP','MedRxActive','GraduateRP','Monthly','movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD'],
+               'N':['NotRequired','OptOut','Terminated','Missed','Dismissed','AppealFollowUp']}
+        Year=["12","13","14", "15"]
+        critical={}
+        normal={}
+        outofNormal={}
+        for y in Year:
+            engagedMember[y]=db.biometrics.find(
+                {"$and":[
+                    {"Year":int(y)},
+                    {"Msubs": {"$in":EngagedStatus['Y']}}
+                ]
+                 } ).distinct("UID")
+       
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Tcholes":{"$gt":240}}}
+            ])
+            critical[y]=int(len(list(result)))
+
+      
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Tcholes":{"$gt":200,"$lt":239}}}
+            ])
+            outofNormal[y]=int(len(list(result)))
+   
+        for y in Year:
+            result = db.biometrics.aggregate([
+                {"$match":{"Year":int(y)}},
+                {"$match":{"UID":{"$in":engagedMember["%s"%(y)]}}},
+                {"$match":{"Tcholes":{"$lt":199}}}
+            ])
+            normal[y]=int(len(list(result)))
+        answer=self.answerFunction(Year,normal,outofNormal,critical)
+        return answer
+
+    def improved_biometrics(self):
+        logger.info('improved_biometrics')
+
+        bmiP = self.BMIparticipant()
+        bmiE = self.BMIengaged()
+        a1cP = self.A1CParticipant()
+        a1cE = self.A1CEngaged()
+        #logger.info('improved_biometrics %s %s %s %s', bmiP, bmiE, a1cP, a1cE)
+        answer = [{'BMI for Participants' : bmiP},
+                  {'BMI for Engaged'      : bmiE},
+                  {'A1C for Participants' : a1cP},
+                  {'A1C for Engaged'      : a1cE},
+                 ]
         return answer
 
 def RPCHandler(request):
