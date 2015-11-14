@@ -1161,6 +1161,7 @@ class RPCMethods:
             normal[y]=int(len(list(result)))
         answer=self.answerFunction(Year,normal,outofNormal,critical)
         logger.debug('A1CResult %s', answer)
+        logger.debug("A1C parti normal%s",normal)
         return answer
 
     def A1CEngaged(self):

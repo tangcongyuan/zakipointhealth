@@ -11,7 +11,17 @@
   <div class="container">
     <div class="row">
       <div class="col-md-12"><div style="text-align:center; display:block;">
-        <img src="{{ company_logo }}?version={{ version }}" style="width: 224px;" />
+        <div class="row">
+          <div>
+            <img src="{{ company_logo }}?version={{ version }}" style="width: 224px;" />
+            <div class="pull-right" style="margin-right: 100px;">
+	      <div style="height: 48px;"></div>
+              <button type="button" class="btn btn-primary ">SAVE AS PPT</button>
+	      <div style="height: 8px;"></div>
+              <button type="button" class="btn btn-info ">SAVE AS PDF</button>
+            </div>
+          </div>
+        </div>
       </div></div>
     {% if hm_data %}
 
@@ -1707,14 +1717,14 @@
               .append("g")
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-          color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+          //color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+          color.domain(["normal", "critical", "outofNormal"]);
 
           $.each(value, function(i, d) {
             var y0 = 0;
             d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
             d.total = d.claims[d.claims.length - 1].y1;
           });
-          console.log(value);
 
           value = value.sort(function(a, b) { 
             if (a.Year > b.Year) return 1;
@@ -1753,7 +1763,7 @@
               .attr("fill", "#F78181")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.critical+'%'; });
+              .text(function(d) { return d.outofNormal+'%'; });
 
           svg.selectAll("claims")
               .data(value)
@@ -1763,7 +1773,7 @@
               .attr("fill", "#BDBDBD")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.outofNormal+'%'; });
+              .text(function(d) { return d.critical+'%'; });
 
           svg.selectAll("claims")
               .data(value)
@@ -1790,14 +1800,14 @@
               .append("g")
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-          color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+          //color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+          color.domain(["normal", "critical", "outofNormal"]);
 
           $.each(value, function(i, d) {
             var y0 = 0;
             d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
             d.total = d.claims[d.claims.length - 1].y1;
           });
-          console.log(value);
 
           value = value.sort(function(a, b) { 
             if (a.Year > b.Year) return 1;
@@ -1836,7 +1846,7 @@
               .attr("fill", "#F78181")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.critical+'%'; });
+              .text(function(d) { return d.outofNormal+'%'; });
 
           svg.selectAll("claims")
               .data(value)
@@ -1846,7 +1856,7 @@
               .attr("fill", "#BDBDBD")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.outofNormal+'%'; });
+              .text(function(d) { return d.critical+'%'; });
 
           svg.selectAll("claims")
               .data(value)
@@ -1873,14 +1883,14 @@
               .append("g")
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-          color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+          //color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+          color.domain(["normal", "critical", "outofNormal"]);
 
           $.each(value, function(i, d) {
             var y0 = 0;
             d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
             d.total = d.claims[d.claims.length - 1].y1;
           });
-          console.log(value);
 
           value = value.sort(function(a, b) { 
             if (a.Year > b.Year) return 1;
@@ -1919,7 +1929,7 @@
               .attr("fill", "#F78181")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.critical+'%'; });
+              .text(function(d) { return d.outofNormal+'%'; });
 
           svg.selectAll("claims")
               .data(value)
@@ -1929,7 +1939,7 @@
               .attr("fill", "#BDBDBD")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.outofNormal+'%'; });
+              .text(function(d) { return d.critical+'%'; });
 
           svg.selectAll("claims")
               .data(value)
@@ -1945,6 +1955,7 @@
 
           title = Object.keys(data[3])[0];
           value = data[3][title]
+          console.log(value);
           $("#biom2_engaged p").html(title);
           //$("#biom2_engaged div").html(JSON.stringify(value));
 
@@ -1956,14 +1967,14 @@
               .append("g")
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-          color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+          //color.domain(d3.keys(value[0]).filter(function(key) { return key !== "Year"; }));
+          color.domain(["normal", "critical", "outofNormal"]);
 
           $.each(value, function(i, d) {
             var y0 = 0;
             d.claims = color.domain().map(function(level) { return {level: level, y0: y0, y1: y0 += +d[level]}; });
             d.total = d.claims[d.claims.length - 1].y1;
           });
-          console.log(value);
 
           value = value.sort(function(a, b) { 
             if (a.Year > b.Year) return 1;
@@ -2002,7 +2013,7 @@
               .attr("fill", "#F78181")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.critical+'%'; });
+              .text(function(d) { return d.outofNormal+'%'; });
 
           svg.selectAll("claims")
               .data(value)
@@ -2012,7 +2023,7 @@
               .attr("fill", "#BDBDBD")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.outofNormal+'%'; });
+              .text(function(d) { return d.critical+'%'; });
 
           svg.selectAll("claims")
               .data(value)

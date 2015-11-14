@@ -107,15 +107,15 @@ for doc in biometrics_cursor:
     except:
         pass
     try:
-        A1C = int(doc['A1C'])
+        A1C = float(doc['A1C'])
         result = db.biometrics.update_one({'_id': doc['_id']}, {'$set': {'A1C': A1C}} )
     except:
-        pass
-    try:
-        HbA1C = int(doc['HbA1C'])
-        result = db.biometrics.update_one({'_id': doc['_id']}, {'$set': {'HbA1C': HbA1C}} )
-    except:
-        pass
+        try:
+            HbA1C = float(doc['HbA1C'])
+            result = db.biometrics.update_one({'_id': doc['_id']}, {'$set': {'A1C': HbA1C}} )
+        except:
+            pass
+
     try:
         PSA = int(doc['PSA'])
         result = db.biometrics.update_one({'_id': doc['_id']}, {'$set': {'PSA': PSA}} )
