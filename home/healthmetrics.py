@@ -572,7 +572,8 @@ class RPCMethods:
                 else:
                     ans['Target']= 'Low'
                     ans['Count']=len(set(groupHigh[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
-                highGroup.append(ans) 
+                if ans['Count']:
+                    highGroup.append(ans) 
                 ans={}
 
         for i in range(len(group)):
@@ -589,7 +590,8 @@ class RPCMethods:
                 else:
                     ans['Target']= 'Low'
                     ans['Count']=len(set(groupMe[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
-                meGroup.append(ans) 
+                if ans['Count']:
+                    meGroup.append(ans) 
                 ans={}
 
         for i in range(len(group)):
@@ -606,7 +608,8 @@ class RPCMethods:
                 else:
                     ans['Target']= 'Low'
                     ans['Count']=len(set(groupLow[item.split('-')[0]]).intersection(groupLow[item.split('-')[1]]))
-                lowGroup.append(ans) 
+                if ans['Count']:
+                    lowGroup.append(ans) 
                 ans={}
 
        
@@ -616,7 +619,7 @@ class RPCMethods:
             answer.append(i)
         for i in lowGroup:
             answer.append(i)
-        #logger.info('outputReturn 5, %s,\n\n%s,\n\n%s', answer['High'], answer['Medium'], answer['Low'])
+        logger.info('outputReturn 5, %s', answer)
         return answer
 
     def risk_participating_changes(self):
