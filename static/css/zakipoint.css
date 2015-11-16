@@ -122,6 +122,14 @@ div.center {
     text-align: center;
 }
 
+.center {
+    text-align: center;
+}
+
+.left {
+    text-align: left;
+}
+
 hr {
     width: 900px;
 }
@@ -130,7 +138,11 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 h3 {
-    font-size: 20px;
+    text-align: left;
+}
+
+h4 {
+    text-align: center;
 }
 
 .side-by-side {

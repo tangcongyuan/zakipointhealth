@@ -97,7 +97,7 @@ def member_count_having(db, member_uids, condition, including=True):
 class RPCMethods:
     def eligible(self):
         t0 = time.time()
-        Year=["2012","2014","2015"]
+        Year=["2012","2013","2014","2015"]
         answer = [{"_id": yr, "count": 1309} for yr in Year]
         return answer
 
@@ -130,7 +130,7 @@ class RPCMethods:
         answer_dict = list(collection.aggregate(pipeline2))
         # [{"count": 434, "_id": {"Status": "Primary", "Year": 12}}, {"count": 950, "_id": {"Status": "Primary", "Year": 14}},...]
         # [{"count": 1309, "_id": "12"}, {"count": 1309, "_id": "13"}, {"count": 1309, "_id": "14"}]
-        answer = [{"count": v['count'], "_id":str(v['_id']['Year']+2000)} for v in answer_dict if v['_id']['Year'] != 13]
+        answer = [{"count": v['count'], "_id":str(v['_id']['Year']+2000)} for v in answer_dict]# if v['_id']['Year'] != 13]
         
         logger.info("%.2f participating members in each year: %s", time.time() - t0, answer)
         return answer
@@ -138,8 +138,8 @@ class RPCMethods:
     def engaged(self):
         t0 = time.time()
         #engaged members
-#        answer = [{"count": 146, "_id": "2012"}, {"count": 383, "_id": "2013"}, {"count": 413, "_id": "2014"}, {"count": 449, "_id": "2015"}]
-        answer = [{"count": 146, "_id": "2012"}, {"count": 413, "_id": "2014"}, {"count": 449, "_id": "2015"}]
+        answer = [{"count": 146, "_id": "2012"}, {"count": 383, "_id": "2013"}, {"count": 413, "_id": "2014"}, {"count": 449, "_id": "2015"}]
+#        answer = [{"count": 146, "_id": "2012"}, {"count": 413, "_id": "2014"}, {"count": 449, "_id": "2015"}]
         return answer
         result=collection.aggregate([
             {"$match": {"Msubs": {"$in":EngagedStatus['Y']}}},
@@ -276,9 +276,9 @@ class RPCMethods:
             hi_spenders = round(gt10k[y]*100.0/total)
             ret.append({
                 "Year": "20"+y,
-                "under_500": int(lo_spenders),
-                "between": int(100 - lo_spenders - hi_spenders),
-                "over_10k": int(hi_spenders),
+                "Under $500": int(lo_spenders),
+                "$500 &mdash; $10K": int(100 - lo_spenders - hi_spenders),
+                "Over $10K": int(hi_spenders),
             })
         logging.info('%.2f figure_3 returns %s', time.time() - t0, ret)
         return ret
