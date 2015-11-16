@@ -1239,7 +1239,9 @@
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
           data = JSON.parse(data);
-          color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Year"; }));
+          console.log(data);
+          //color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Year"; }));
+          color.domain(["Under $500", "$500-$10K","Over $10K"]);
 
           $.each(data, function(i, d) {
             var y0 = 0;
@@ -1269,7 +1271,7 @@
 
           claims.selectAll("rect")
               .data(function(d) { return d.claims; })
-            .enter().append("rect")
+              .enter().append("rect")
               .attr("width", x.rangeBand())
               .attr("y", function(d) { return y(d.y1); })
               .attr("height", function(d) { return y(d.y0) - y(d.y1); })
@@ -1298,7 +1300,7 @@
               .attr("fill", "#F78181")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.over_10k+'%'; });
+              .text(function(d) { return d["Over $10K"]+'%'; });
 
           svg.selectAll("claims")
               .data(data)
@@ -1308,7 +1310,7 @@
               .attr("fill", "#BDBDBD")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.between+'%'; });
+              .text(function(d) { return d["$500-$10K"]+'%'; });
 
           svg.selectAll("claims")
               .data(data)
@@ -1318,7 +1320,7 @@
               .attr("fill", "steelblue")
               .attr("dx", "-0.9em")
               .attr("dy", "0em")
-              .text(function(d) { return d.under_500+'%'; });
+              .text(function(d) { return d["Under $500"]+'%'; });
 
         }).fail(function() {
           $("#figure3").html('Error with figure_3');

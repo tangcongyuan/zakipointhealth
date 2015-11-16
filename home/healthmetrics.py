@@ -253,6 +253,7 @@ class RPCMethods:
         return answer
 
     def figure_3(self):
+        logger.info('figure_3 begins')
         t0 = time.time()
         client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
         db = client[DATABASES['mongo']['NAME']]
@@ -277,10 +278,10 @@ class RPCMethods:
             ret.append({
                 "Year": "20"+y,
                 "Under $500": int(lo_spenders),
-                "$500 &mdash; $10K": int(100 - lo_spenders - hi_spenders),
+                "$500-$10K": int(100 - lo_spenders - hi_spenders),
                 "Over $10K": int(hi_spenders),
             })
-        logging.info('%.2f figure_3 returns %s', time.time() - t0, ret)
+        logger.info('%.2f figure_3 returns %s', time.time() - t0, ret)
         return ret
 
     def non_participant_claims(self):
