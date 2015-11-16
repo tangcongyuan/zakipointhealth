@@ -1374,13 +1374,13 @@ class RPCMethods:
     def improved_biometrics(self):
         logger.info('improved_biometrics')
 
-        bmiP = self.BMIparticipant()
-        bmiE = self.BMIengaged()
+        tchP = self.TcholesParticipant()
+        tchE = self.TcholesEngaged()
         a1cP = self.A1CParticipant()
         a1cE = self.A1CEngaged()
         #logger.info('improved_biometrics %s %s %s %s', bmiP, bmiE, a1cP, a1cE)
-        answer = [{'BMI for Participants' : bmiP},
-                  {'BMI for Engaged'      : bmiE},
+        answer = [{'Total Chol. for Participants' : tchP},
+                  {'Total Chol. for Engaged'      : tchE},
                   {'A1C for Participants' : a1cP},
                   {'A1C for Engaged'      : a1cE},
                  ]
