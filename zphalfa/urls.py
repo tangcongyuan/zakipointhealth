@@ -23,6 +23,7 @@ urlpatterns = [
     #url(r'^$', 'home.views.home', name='home'),
     url(r'^home$', 'home.views.home', name='home'),
     url(r'^narrow_network$', 'home.views.narrow_network', name='narrow_network'),
+    url(r'^monthly_cost$', 'home.views.monthly_cost', name='monthly_cost'),
     url(r'^cost_pharm$', 'home.views.cost_pharm', name='cost_pharm'),
     url(r'^pop_risk$', 'home.views.pop_risk', name='pop_risk'),
     url(r'^pop_biom$', 'home.views.pop_biom', name='pop_biom'),

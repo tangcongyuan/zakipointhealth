@@ -1,24 +1,25 @@
 {% extends "base.html" %}
 
 {% block container_content %}
-<!-- hm_flag is {{ hm_flag }} -->
 
-<div id="page-top" />
 <div class="container">
   <div class="row">
 
-    <div class="col-md-12"><div style="text-align:center; display:block;">
-	<img src="{{ company_logo }}?version={{ version }}" style="width: 224px;" />
+    <div class="col-md-12"><div style="text-align:center; display:block; padding: 70px 0 0 0;">
+      <img src="{{ company_logo }}?version={{ version }}" style="width: 224px;" />
     </div></div>
     <div style="text-align:center; display:block;">
-      <img src="static/dimages/0911_r2.png?version={{ version }}" />
+      <img src="static/dimages/0911_r2_v2.png?version={{ version }}" />
+      <a href="monthly_cost" class="btn btn-info" role="button">SEE MONTHLY COST TABLE</a>
     </div>
-    <div style="text-align:center; display:block;">
-    <table width="100%" id="cost-driver">
-      <td><hr color="#ccc"/></td>
-      <td style="width:1px; padding: 0 10px; white-space: nowrap;">Investigate Costs</td>
-      <td><hr color="#ccc" /></td>
-    </table>
+    <div style="text-align:center; display:block; padding: 60px 0 0 0;">
+      <table id="cost-driver" style="width: 1170px; ">
+        <tr>
+        <td style="text-align: right;"><hr style="width: 400px; color: #ccc" /></td>
+        <td style="width:1px; padding: 0 10px; white-space: nowrap;">Investigate Costs</td>
+        <td style="text-align: left;" "><hr style="width: 400px; color: #ccc" /></td>
+        </tr>
+      </table>
     </div>
     <div class="col-md-12">
     <div style="text-align:center; display:block;">
@@ -59,15 +60,18 @@
       <img src="static/dimages/0911_cost_spse.png?version={{ version }}" class="col-md-4 greyed" />
       <img src="static/dimages/0911_cost_rdndt.png?version={{ version }}" class="col-md-4 greyed" />
     </div></div>
-    <div style="text-align:center; display:block;">
-    <table width="100%" id="cohorts">
-      <td><hr color="#ccc"/></td>
-      <td style="width:1px; padding: 0 10px; white-space: nowrap;">Explore the Population</td>
-      <td><hr color="#ccc" /></td>
-    </table></div>
+    <div style="text-align:center; display:block; clear: both; padding: 60px 0 0 0;">
+      <table id="cohorts" style="width: 1170px;">
+        <tr>
+        <td style="text-align: right;"><hr style="width: 400px; color: #ccc" /></td>
+        <td style="width:1px; padding: 0 10px; white-space: nowrap;">Explore the Population</td>
+        <td style="text-align: left;" "><hr style="width: 400px; color: #ccc" /></td>
+        </tr>
+      </table>
+    </div>
     <div class="col-md-12">
-    <div style="text-align:center; display:block;">
-      <img src="static/dimages/0911_r4.png?version={{ version }}" />
+    <div style="text-align:center; display:block; padding-top: 30px;">
+      <img src="static/dimages/0911_r4.png?version={{ version }}" style="padding-top: 30px;"/>
     </div></div>
   </div>
 </div>

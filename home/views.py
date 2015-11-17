@@ -56,6 +56,20 @@ def cost_pharm(request):
     context = {'session': request.session, 'path': request.path, 'fullname': fullname, 'version': VERSION_STAMP}
     return  render_to_response('cost_pharm.html', context)
 
+def monthly_cost(request):
+    try:
+        app_user = AppUser.find(username = request.session['username'])
+        fullname = app_user.get_full_name()
+    except (IndexError, KeyError):
+        logout(request)
+        return redirect('/')
+
+    context = {'session': request.session, 'path': request.path, 'version': VERSION_STAMP,
+               'fullname': fullname, 'channel_logo': request.session['channel_logo'], 
+               'company_logo': request.session['company_logo'],
+    }
+    return  render_to_response('monthly_cost.html', context)
+
 def pop_biom(request):
     try:
         app_user = AppUser.find(username = request.session['username'])

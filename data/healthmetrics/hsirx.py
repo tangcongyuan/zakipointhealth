@@ -1,3 +1,7 @@
+import json, logging
+logger = logging.getLogger('zakipoint')
+
+from zphalfa.settings import DATABASES
 from pymongo import MongoClient
 
 client = MongoClient("mongodb://localhost:27017")
@@ -9,6 +13,33 @@ biometrics_cursor = biometrics.find()
 engaged_values = ['MovetoRR','GraduatetoRRMonthly','NoPCP','MedRxMaintenance',
                    'GraduatetoRP','MedRxActive','GraduateRP','Monthly',
                    'movetorrmonthly','Targeted','RPhDissmissalPart','RPhDismissalMD']
+
+co_records = [
+    {"Name": "City of Cedar Rapids",
+     "Logo": "static/dimages/cedar-rapids-logo.png",
+     "Members": 1309,
+     "Spend": 34034000,
+     "PSA": [4.0],
+     "Fasting Blood Glucose": [100, 126],
+     "A1C": [6.0, 6.5],
+     "LDL": [160, 190],
+     "BMI": [30, 35],
+     "hypertension": {'systolic': [90,100], 'diastolic': [140, 160]},
+ }, {"Name": "Tilde Inc.",
+     "logo": "static/dimages/tilde.png",
+     "Members": "879",
+     "Spend": "$12M",
+ }
+]
+client = MongoClient("mongodb://%s:%s" % (DATABASES['mongo']['HOST'], DATABASES['mongo']['PORT']))
+db = client[DATABASES['mongo']['NAME']]
+companies = db['companies']
+for co_record in co_records:
+    record = companies.find_one({'Name': co_record['Name']})
+    if record:
+        companies.find_one_and_replace({'Name': co_record['Name']}, co_record)
+    else:
+        companies.insert_one(co_record)
 
 iters = 0
 

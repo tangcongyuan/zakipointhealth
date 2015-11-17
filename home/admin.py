@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.contrib.admin.sites import NotRegistered
+
 
 from django.contrib.auth.models import User, Group, Permission
 from django.contrib.sites.models import Site
@@ -7,6 +9,7 @@ import logging
 logger = logging.getLogger('zakipoint')
 
 from session import *
+from models import *
 
 try:
     admin.site.unregister(User)
