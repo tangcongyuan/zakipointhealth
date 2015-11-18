@@ -22,7 +22,7 @@ class AuthObject(object):
     def find(cls, **kwargs):
         auth_obj = cls.objects.get(**kwargs)
         if auth_obj:
-            logger.debug('Found %s: %s' % (cls.__name__, vars(auth_obj)))
+            # logger.debug('Found %s: %s' % (cls.__name__, vars(auth_obj)))
             return auth_obj
         else:
             logger.debug('Could not find %s(%s)' % (cls.__name__, kwargs))
