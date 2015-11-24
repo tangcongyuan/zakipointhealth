@@ -22,9 +22,15 @@ function generateBarChart(loc, data, layout, title){
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   $.each(data, function(i, item) {
-    item.date = +item._id;
-    item.value = +item.count;
+    item.date = +item._id.slice(2,4);
+    if (item.count) { item.value = +item.count; }
+    if (item.dollars) { item.value = Math.floor(+item.dollars); }
   });
+  data = data.sort(function(a, b){
+          if (a._id > b._id) return 1;
+          if (a._id < b._id) return -1;
+          return 0;
+         });
 
   x.domain(data.map(function(d) { return d.date; }).sort());
   y.domain([0, d3.max(data, function(d) { return d.value; })]);
@@ -35,7 +41,7 @@ function generateBarChart(loc, data, layout, title){
   .call(xAxis)
   .selectAll("text")
   .style("text-anchor", "end")
-  .attr("dx", "1.1em")
+  .attr("dx", "0.6em")
 
   var bar = svg.selectAll("bar")
          .data(data)
@@ -54,7 +60,10 @@ function generateBarChart(loc, data, layout, title){
      .attr("y", 0)
      .attr("dx", "-1.2em")
      .attr("dy", "-.3em")
-     .text(function(d) { return d.value; });
+     .text(function(d) { 
+            if (d.count) {return d.value;}
+            if (d.dollars) {return '$'+d.value;}
+          });
 
   svg.append("text")
      .text(title)
