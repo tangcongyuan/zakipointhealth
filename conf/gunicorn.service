@@ -1,1 +1,14 @@
-/etc/systemd/system/gunicorn.service
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User=j
+Group=nginx
+WorkingDirectory=/home/j/zphalfa
+ExecStart=/usr/bin/gunicorn --workers 3 --bind '127.0.0.1:8001' zphalfa.wsgi:application
+Reload=True
+
+[Install]
+WantedBy=multi-user.target
+

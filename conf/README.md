@@ -1,11 +1,13 @@
 Environment Configuration
 =========================
 
-Place these files in the directories as indicated below; in this directory, `conf`, set up links such that:
+Place these files in the directories as indicated below in the form of shell commands. But first set the server name using `sudo hostname whatever`
+
 ```
-lrwxrwxrwx.  1 j userz   27 Nov  1 10:54 alfa.conf -> /etc/nginx/conf.d/alfa.conf
-lrwxrwxrwx.  1 j userz   36 Nov  1 10:50 gunicorn.service -> /etc/systemd/system/gunicorn.service
-lrwxrwxrwx.  1 j userz   21 Nov  1 10:50 nginx.conf -> /etc/nginx/nginx.conf
+sed "s/HOSTNAME/$HOSTNAME/g" < conf/server.conf > /tmp/server.conf
+sudo cp !$ /etc/nginx/conf.d/
+sudo cp gunicorn.service /etc/systemd/system/
+sudo cp nginx.conf /etc/nginx/
 ```
 To restart the web server and django:
 ```
