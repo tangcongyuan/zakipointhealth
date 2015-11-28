@@ -5,7 +5,7 @@ Place these files in the directories as indicated below in the form of shell com
 
 ```
 sed "s/HOSTNAME/$HOSTNAME/g" < conf/server.conf > /tmp/server.conf
-sudo cp !$ /etc/nginx/conf.d/
+sudo cp /tmp/server.conf /etc/nginx/conf.d/
 sudo cp gunicorn.service /etc/systemd/system/
 sudo cp nginx.conf /etc/nginx/
 ```

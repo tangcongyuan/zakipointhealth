@@ -98,39 +98,7 @@ class Company(models.Model):
         return this_co
     @classmethod
     def get(cls, name):
-        pdb.set_trace()
         this_co = Company.objects.all().filter(group__name=name).get()
         this_group = Group.objects.get(name = name)
         this_co = this_group.company
         return this_co
-
-class UserRole(models.Model):
-    name = models.CharField(max_length=48)
-
-    def __unicode__(self):
-        return self.name + str(self.get_capability_names())
-
-    def get_capabilities(self):
-        return [cap for cap in self.allowed.all()]
-    capabilities = property(get_capabilities)
-
-    def get_capability_names(self):
-        return [cap.name for cap in self.allowed.all()]
-    capability_names = property(get_capability_names)
-
-    @classmethod
-    def create(cls, name, capabilities):
-        new_role, created = UserRole.objects.get_or_create(name=name)
-        new_role.save()
-        for capability in capabilities:
-            new_c, created = Capability.objects.get_or_create(name=capability)
-            new_c.save()
-            new_c.roles.add(new_role)
-        return new_role
-
-class Capability(models.Model):
-    name = models.CharField(max_length=48)
-    roles = models.ManyToManyField(UserRole, related_name="allowed")
-    def __unicode__(self):
-        return self.name
-

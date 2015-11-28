@@ -20,7 +20,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'home.session.splash', name='splash'),
     url(r'^rpc/1/healthmetrics/$', 'home.healthmetrics.RPCHandler', name='rpc'),
-    #url(r'^$', 'home.views.home', name='home'),
     url(r'^home$', 'home.views.home', name='home'),
     url(r'^narrow_network$', 'home.views.narrow_network', name='narrow_network'),
     url(r'^monthly_cost$', 'home.views.monthly_cost', name='monthly_cost'),
@@ -33,8 +32,6 @@ urlpatterns = [
     url(r'^strategies$', 'home.views.notyet', name='home'),
     url(r'^cost_drivers$', 'home.views.notyet', name='home'),
     url(r'^cohorts$', 'home.views.notyet', name='home'),
-    # url(r'^\S+/$', 'django.views.defaults.page_not_found', ),
-    # url(r'^cee1/', include('cee1.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

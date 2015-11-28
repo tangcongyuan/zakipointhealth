@@ -32,19 +32,20 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 LOGIN_URL = '/signin'  # login_required redirects here if need be, setting up ?next= param usefully
-
+SITE_ID = 2
 
 # Application definition
 
 INSTALLED_APPS = (
+    'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'home',
+    'django_extensions',
 )
 
 MIDDLEWARE_CLASSES = (

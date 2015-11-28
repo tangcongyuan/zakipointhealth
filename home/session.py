@@ -114,7 +114,6 @@ def sign_in_form(request):
                 # zaki logo
                 channel_logo = "static/images/logo-blue-transparent.png"
                 company_logo = "static/dimages/tilde.png"
-#                company_logo = "static/dimages/0916_home_1.png"
                 try:
                     user_co_domain  = email[email.index('@')+1:]
                     logger.debug('user_co_domain %s', user_co_domain)
