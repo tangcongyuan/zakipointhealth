@@ -2,4 +2,4 @@
 ZPH demo prototype
 
 ## Data Model
-![](/images/images/zphalfa_models.png)
+![](/static/images/zphalfa_models.png)
