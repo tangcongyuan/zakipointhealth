@@ -1,7 +1,3 @@
-# Create your views here.
-
-from django.core.context_processors import csrf
-from django.views.decorators.csrf import csrf_protect,ensure_csrf_cookie
 from django.template import RequestContext
 from django.shortcuts import render_to_response, redirect
 from django.http import HttpResponse
@@ -1387,6 +1383,6 @@ class RPCMethods:
         return answer
 
 def RPCHandler(request):
-    logger.info('home.healthmetrics.RPCHandler')
+    # logger.info('home.healthmetrics.RPCHandler')
     mObj = RPCMethods()
     return rpc.RPCHandler(request, mObj)

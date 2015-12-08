@@ -28,10 +28,13 @@ urlpatterns = [
     url(r'^pop_biom$', 'home.views.pop_biom', name='pop_biom'),
     url(r'^signin$', 'home.session.signin', name='signin'),
     url(r'^sign-in-form$', 'home.session.sign_in_form', name='sign_in_form'),
+    url(r'^choose-co$', 'home.session.choose_co', name='choose_co'),
+    url(r'^choose-co-form$', 'home.session.choose_co_form', name='choose_co_form'),
     url(r'^signout$', 'home.session.signout', name='signout'),
     url(r'^strategies$', 'home.views.notyet', name='home'),
     url(r'^cost_drivers$', 'home.views.notyet', name='home'),
     url(r'^cohorts$', 'home.views.notyet', name='home'),
+    url(r'^fixtures/$', 'home.fixtures.init_fixtures', name='fixtures'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

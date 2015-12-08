@@ -20,7 +20,7 @@ class RPCMethods:
 
 def RPCHandler(request, mObj = RPCMethods()):
     """ Allows the functions defined in the RPCMethods class to be RPCed."""
-    # logger.info('In RPCHandler')
+    # logger.info('In RPCHandler, user %s, co %s', request.session['username'], request.session['user_co'])
     if request.method == 'POST':
         post_data = request.POST
         func = request.POST.get('func', None)

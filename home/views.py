@@ -18,18 +18,34 @@ logging.getLogger().setLevel(logging.DEBUG)
 logger = logging.getLogger('zakipoint')
 logger.setLevel(logging.DEBUG)
 
-from session import AppUser
+from models import AppUser
+from session import capability_required, request_passes_test
 
 def user_context(request):
-    app_user = AppUser.find(username = request.session['username'])
-    context = {'session': request.session, 'path': request.path, 'version': VERSION_STAMP,
-               'fullname': app_user.get_full_name(), 'channel_logo': request.session['channel_logo'], 
-               'company_logo': request.session['company_logo'],
+    try:
+        username = request.session['username']
+        channel_logo = request.session['channel_logo']
+        company_logo = request.session['company_logo']
+        app_user = AppUser.get(username)
+        fullname = app_user.user.get_full_name()
+    except KeyError:
+        channel_logo = "/static/images/logo-blue-transparent.png"
+        company_logo = "/static/dimages/tilde.png"
+        fullname = ''
+
+    context = {
+        'session': request.session, 
+        'path': request.path, 
+        'version': VERSION_STAMP,
+        'fullname': fullname, 
+        'channel_logo': channel_logo,
+        'company_logo': company_logo,
     }
     callingframe = sys._getframe(1)
     logger.info( '\n----\n%r context %s\n--------', callingframe.f_code.co_name, context)
     return context
 
+@request_passes_test(lambda rqst: capability_required(rqst, "home"))
 @login_required
 def home(request):
     # This construct derives the name of the html file from the name of the function

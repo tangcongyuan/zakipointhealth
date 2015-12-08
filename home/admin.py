@@ -26,11 +26,15 @@ def register(cls):
         logger.info('Admin could not register %s', cls.__name__)
 
 unregister(User)
+unregister(AppUser)
 unregister(Group)
 unregister(Company)
-#unregister(Capability)
-#unregister(UserRole)
-#admin.site.register(Company)
+unregister(Power)
+unregister(AppRole)
+
 register(User)
+register(AppUser)
 register(Group)
 register(Company)
+register(Power)
+register(AppRole)
