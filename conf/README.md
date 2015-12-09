@@ -18,3 +18,9 @@ In the `static` directory, set up the link:
 ```
 lrwxrwxrwx.  1 j userz   68 Oct 27 07:44 admin -> /usr/lib64/python2.7/site-packages/django/contrib/admin/static/admin
 ```
+
+To start mongodb,
+```
+sudo -u mongod mongod &
+```
+It would be better to implement it as a service. 

@@ -34,8 +34,8 @@ class AppUser(models.Model):
         """
         This operation is designed to be idempotent -- it will not create duplicate users.
         But it is not thread-safe, intended to be used only for creating fixtures.
-        kwargs are applied only at creation of the inner user, so it can not be used for changing password, etc.
-        @TODO: allow kwargs to be applied every time so it CAN be used for changing password, etc.
+        Everything in kwargs is for the inner user
+        kwargs can be applied every time so this operation CAN be used for changing password, etc.
 
         returns appuser, boolean, boolean
         The 1st boolean refers to whether the inner object was created
@@ -45,40 +45,39 @@ class AppUser(models.Model):
             validate_email(email)
         except ValidationError:
             raise
+
         username = email.split('@')[0]
+        user, inner_created = User.objects.get_or_create(username = username)
+        user.email = email
+        user.save()
+        processed = {'username': username, 'email', email}
 
-        this_appuser = AppUser.get(username)
-        if this_appuser:
-            return this_appuser, False, False
+        for kw in kwargs.keys():
+            if '__' in kw or kw in ['username', 'password', 'group', 'company']:
+                continue
+            else:
+                setattr(user, kw, kwargs[kw])
+                processed[kw] = kwargs[kw]
 
-        try:
-            user = User.objects.get(username = username)
-            inner_created = False
-        except ObjectDoesNotExist:
-            # the inner user does not exist, create it first
-            try:
-                user, inner_created = User.objects.get_or_create(username = username)
-                user.email = email
-            except MultipleObjectsReturned:
-                raise # What the...
+        if 'password' in kwargs.keys():
+            user.set_password(kwargs['password'])
+            processed['password'] = '*****'
 
-            if 'password' in kwargs.keys():
-                user.set_password(kwargs['password'])
-            for kw in kwargs.keys():
-                if '__' in kw or kw in ['username', 'password']:
-                    continue
-                elif kw == 'group':
-                    user.groups.add(kwargs[kw])
-                elif kw == 'company':
-                    user.groups.add(kwargs[kw].group)
-                else:
-                    setattr(user, kw, kwargs[kw])
-            user.save()
+        if 'company' in kwargs.keys():
+            # if both company and group are specified and they are different,
+            # company takes precedence
+            user.groups.add(kwargs[kw].group)
+        elif 'group' in kwargs.keys():
+            user.groups.add(kwargs[kw])
+        else:
+            pass
+
+        user.save()
 
         # create the outer user
-        this_appuser = cls(user = user)
+        this_appuser, outer_created = cls.objects.get_or_create(user = user)
         this_appuser.save()
-        return this_appuser, inner_created, True
+        return this_appuser, inner_created, outer_created
 
     @classmethod
     def get(cls, username):

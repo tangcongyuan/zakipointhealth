@@ -12,9 +12,9 @@ import json
 import logging
 logger = logging.getLogger('zakipoint')
 
-@user_passes_test(lambda u: u.is_superuser, login_url='/admin/')
+@user_passes_test(lambda u: u.is_staff and u.is_superuser, login_url='/admin/')
 def init_fixtures(request):
-    logger.info('init_fixtures')
+    logger.info('user %s initialized fixtures', u.username)
     company_fixtures()
     appuser_fixtures()
     approle_fixtures()
@@ -40,10 +40,10 @@ def company_fixtures():
 
 def appuser_fixtures():
 
-    j,c1,c2 = AppUser.get_or_create('j.singh@zakipoint.com', password = 'alfa', is_superuser = True)
+    j,c1,c2 = AppUser.get_or_create('j.singh@zakipoint.com', password = 'alfa', is_superuser = True, is_staff = True)
     j,c1,c2 = AppUser.get_or_create('j.singh@zakipoint.com', password = 'alfa')
-    heather,c1,c2 = AppUser.get_or_create('heather@zakipoint.com', password = 'alfa', first_name = 'Heather', last_name = 'Ritchie')
-    armen,c1,c2 =   AppUser.get_or_create('armen@zakipoint.com',   password = 'alfa', first_name = 'Armen', last_name = 'Meguerditchian')
+    heather,c1,c2 = AppUser.get_or_create('heather@zakipoint.com', password = 'alfa', first_name = 'Heather', last_name = 'Ritchie', is_staff = True)
+    armen,c1,c2 =   AppUser.get_or_create('armen@zakipoint.com',   password = 'alfa', first_name = 'Armen', last_name = 'Meguerditchian', is_staff = True)
     dipali,c1,c2 =   AppUser.get_or_create('dipali@zakipoint.com',   password = 'alfa', first_name = 'Dipali', last_name = 'Dey')
     ramesh,c1,c2 =  AppUser.get_or_create('ramesh@zakipoint.com',  password = 'alfa', first_name = 'Ramesh', last_name = 'Kumar')
     snehasish,c1,c2 = AppUser.get_or_create('snehasish@zakipoint.com', password = 'alfa', first_name = 'Snehasish', last_name = 'Barman')

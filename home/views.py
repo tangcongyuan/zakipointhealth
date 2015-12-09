@@ -8,11 +8,14 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.sites.models import Site
+
 import sys, time
 
 from pymongo import MongoClient
 
-from zphalfa.settings import VERSION_STAMP, DATABASES
+from zphalfa.settings import VERSION_STAMP, DATABASES, ga_codes
+
 import logging
 logging.getLogger().setLevel(logging.DEBUG)
 logger = logging.getLogger('zakipoint')
@@ -28,10 +31,18 @@ def user_context(request):
         company_logo = request.session['company_logo']
         app_user = AppUser.get(username)
         fullname = app_user.user.get_full_name()
+        site = Site.objects.get_current()
+
     except KeyError:
         channel_logo = "/static/images/logo-blue-transparent.png"
         company_logo = "/static/dimages/tilde.png"
         fullname = ''
+        site = Site.objects.get()
+
+    try:
+        ga_code = ga_codes[site.name]
+    except KeyError:
+        ga_code = ga_codes['default']
 
     context = {
         'session': request.session, 
@@ -40,6 +51,8 @@ def user_context(request):
         'fullname': fullname, 
         'channel_logo': channel_logo,
         'company_logo': company_logo,
+        'site': site.name,
+        'ga_code': ga_code,
     }
     callingframe = sys._getframe(1)
     logger.info( '\n----\n%r context %s\n--------', callingframe.f_code.co_name, context)

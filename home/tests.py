@@ -28,7 +28,7 @@ class TestBasic(unittest.TestCase):
     def test_users(self):
         """Users"""
         # print "Users %s" % self.users
-        assert self.users == ['heather', 'j.singh*']
+        assert 'heather' in self.users and 'j.singh*' in self.users
 
     def test_positive_permissions(self):
         """Permissions +"""

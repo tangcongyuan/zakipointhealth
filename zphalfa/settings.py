@@ -29,10 +29,15 @@ SECRET_KEY = 'e4$4j(15bgw%^y66pa(x)ut*k3a7%fw_*qj(1k3)j)hv2^65v1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
 ALLOWED_HOSTS = []
 LOGIN_URL = '/signin'  # login_required redirects here if need be, setting up ?next= param usefully
 SITE_ID = 2
+
+ga_codes = {
+    'alfa-dev.zakipointhealth.com': 'UA-60665302-2',
+    'alpha.zakipointhealth.com': 'UA-60665302-3',
+    'default': 'UA-60665302-51', # This number does not exist. Send analytics info into the ether.
+}
 
 # Application definition
 
