@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 LOGIN_URL = '/signin'  # login_required redirects here if need be, setting up ?next= param usefully
-SITE_ID = 2
+SITE_ID = 1
 
 ga_codes = {
     'alfa-dev.zakipointhealth.com': 'UA-60665302-2',
