@@ -50,7 +50,7 @@ class AppUser(models.Model):
         user, inner_created = User.objects.get_or_create(username = username)
         user.email = email
         user.save()
-        processed = {'username': username, 'email', email}
+        processed = {'username': username, 'email': email}
 
         for kw in kwargs.keys():
             if '__' in kw or kw in ['username', 'password', 'group', 'company']:
@@ -66,9 +66,11 @@ class AppUser(models.Model):
         if 'company' in kwargs.keys():
             # if both company and group are specified and they are different,
             # company takes precedence
-            user.groups.add(kwargs[kw].group)
+            user.groups.add(kwargs['company'].group)
+            processed['company'] = kwargs['company']
         elif 'group' in kwargs.keys():
-            user.groups.add(kwargs[kw])
+            user.groups.add(kwargs['group'])
+            processed['group'] = kwargs['group']
         else:
             pass
 
@@ -77,6 +79,7 @@ class AppUser(models.Model):
         # create the outer user
         this_appuser, outer_created = cls.objects.get_or_create(user = user)
         this_appuser.save()
+        logger.info('AppUser updates: %s', processed)
         return this_appuser, inner_created, outer_created
 
     @classmethod
