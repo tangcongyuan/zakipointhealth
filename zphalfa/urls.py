@@ -42,4 +42,11 @@ urlpatterns = [
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
     url(r'^\S+/$', 'home.views.notfound', ),
+
+    # Eric's messaging page(actually, it is called campaign)
+    url(r'^message$', 'home.views.messaging', name='messaging'),
+    url(r'^create_campaign$', 'home.views.create_campaign', name='create_campaign'),
+    url(r'^schedule_campaign$', 'home.views.schedule_campaign', name='schedule_campaign'),
+    url(r'^review_campaign$', 'home.views.review_campaign', name='review_campaign'),
+    url(r'^launch_campaign$', 'home.views.launch_campaign', name='launch_campaign'),
 ]

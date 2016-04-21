@@ -9,6 +9,11 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.sites.models import Site
+#from django.http import HttpResponse
+
+# For mail server
+from django.http import JsonResponse
+from django.core.mail import send_mail, BadHeaderError
 
 import sys, time
 
@@ -93,3 +98,32 @@ def notyet(request):
 @login_required
 def notfound(request):
     return  render_to_response('404.html', user_context(request))
+
+@login_required
+def messaging(request):
+    # return HttpResponse("Eric's in charge!")
+    return render_to_response('message.html')
+
+@login_required
+def create_campaign(request):
+    return render_to_response('create_campaign.html')
+
+@login_required
+def schedule_campaign(request):
+    return render_to_response('schedule_campaign.html')
+
+@login_required
+def review_campaign(request):
+    return render_to_response('review_campaign.html')
+
+@login_required
+def launch_campaign(request):
+    '''  
+    try:
+        send_mail("Hello from Eric", "If you receive this email, it means our messaging system can deliver emails!\n\nBest,\nEric", "eric.tang@zakipoint.com", [tangcongyuan@gmail.com])
+    except BadHeaderError:
+        return JsonResponse({'message': 'Invalid header found.'})
+    return JsonResponse({'message': 'Message successfully sent.'})
+    '''
+    send_mail("Hello from Eric", "If you receive this email, it means our messaging system can deliver emails!\n\nBest,\nEric", "eric.tang@zakipoint.com", ["tangcongyuan@gmail.com", "heather.ritchie@zakipoint.com"])
+    return JsonResponse({'message': 'Message successfully sent.'})

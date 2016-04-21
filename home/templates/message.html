@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block container_content %}
+  <!-- Bootstrap -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <!-- Font awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+  <div class="container theme-showcase" role="main">
+    <div class="jumbotron">
+      <h1>Welcome to messaging system!</h1>
+      <p>Please use this page to get your members attention.</p>
+    </div>
+
+    <div class="page-header">
+      <h1>Filtering first:</h1>
+
+      <form id="filterForm" method="post" class="form-horizontal">
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Filters:</label>
+            <div class="col-xs-5">
+                <input type="text" class="form-control" name="options" />
+            </div>
+            <div class="col-xs-4">
+                <button type="button" class="btn btn-default addButton"><i class="fa fa-plus"></i></button>
+            </div>
+        </div>
+
+        <!-- The option field template containing an option field and a Remove button -->
+        <div class="form-group hide" id="optionTemplate">
+            <div class="col-xs-offset-3 col-xs-5">
+                <input class="form-control" type="text" name="options" />
+            </div>
+            <div class="col-xs-4">
+                <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+                              </div>
+        </div>
+
+        <!-- The option field template containing an option field and a Remove button -->
+        <div class="form-group hide" id="optionTemplate">
+            <div class="col-xs-offset-3 col-xs-5">
+                <input class="form-control" type="text" name="options" />
+            </div>
+            <div class="col-xs-4">
+                <button type="button" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-xs-5 col-xs-offset-3">
+                <button type="submit" form="filterForm" class="btn btn-default">Find</button>
+            </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="page-header">
+      <div class="panel panel-primary">
+        <div class="panel-heading">Filtered Members:</div>
+        <div class="panel-body">
+          <p>Some demographics here.</p>
+        </div>
+      </div>
+    </div>
+    <div><button class="btn btn-default col-md-2 col-md-offset-5" onclick="location.href = 'create_campaign';">Next</button></div>
+    <br><br><br><br><br><br><br>
+  </div>
+{% endblock %}
+
+{% block loadscript %}
+  $(document).ready(function() {
+  // The maximum number of options
+    var MAX_OPTIONS = 5;
+
+    $('#filterForm')
+    // Add button click handler
+    .on('click', '.addButton', function() {
+      var $template = $('#optionTemplate'),
+          $clone    = $template
+                                .clone()
+                                .removeClass('hide')
+                                .removeAttr('id')
+                                .insertBefore($template),
+          $option   = $clone.find('[name="options"]');
+
+      if ($('#filterForm').find(':visible[name="options"]').length >= MAX_OPTIONS) {
+        $('#filterForm').find('.addButton').attr('disabled', 'disabled');
+      }
+    })
+
+    // Remove button click handler
+    .on('click', '.removeButton', function() {
+      var $row    = $(this).parents('.form-group'),
+          $option = $row.find('[name="options"]');
+
+      // Remove element containing the option
+      $row.remove();
+
+      if ($('#filterForm').find(':visible[name="options"]').length < MAX_OPTIONS) {
+        $('#filterForm').find('.addButton').removeAttr('disabled');
+      }
+    })
+  });
+{% endblock %}
